@@ -1,2 +1,4 @@
 # relationships-from-entity-stream
-Research idea, based on Relation Networks' shortcomings
+
+Research idea, extending the work in the DeepMind "Relation Networks" paper
+
