@@ -309,6 +309,7 @@ class RFS(BasicModel):
         # To get the attention weights, create a dot-product of the k&q numbers
         # *  Option 1 : Softmax these.  
         # *  Option 2 : use a temperature parameter on this vector Gumbel-SoftMax (Google ICLR-2017)
+        # *  Option 3 : Harden the Gumbel-SoftMax outputs for testing (and training?)
         
         # https://arxiv.org/abs/1611.01144
         #   Categorical Reparameterization with Gumbel-Softmax
@@ -323,6 +324,14 @@ class RFS(BasicModel):
         # Maximum length of objects to be processed is ~6.  
         # So make LSTM stage 8 long
         
+        # 2 layers of LSTM 
+        # - bottom one initialised with question - final output is ignored
+        # - top one initialised with zero - and outputs answer
+        #     Output 'answer' should be hidden units of LSTM layer 2
+        
+        #Ideas:
+        # Add a 'zeroes' key/value to allow for non-attentive states
+        # 
         
         
         ##(number of filters per object+coordinate of object)*2+question vector
