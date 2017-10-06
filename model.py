@@ -250,6 +250,48 @@ def gumbel_softmax_sample(input, temperature=1.):
     return x.view_as(input)
 
 
+class Harden(nn.Module):
+    # https://discuss.pytorch.org/t/cannot-override-torch-round-after-upgrading-to-the-latest-pytorch-version/6396 ?
+    def __init__(self, args):
+        super(Harden, self).__init__()
+        self.y_onehot = torch.FloatTensor(args.batch_size, args.input_len)
+        
+    def forward(self, vec):
+        self.y_onehot.zero_()
+        self.y_onehot.scatter_(1, vec, 1)      
+        return 
+
+    def backward(self, grads):
+        return grads  # This is an identity pass-through
+
+
+#  https://github.com/jcjohnson/pytorch-examples
+
+#class Harden(torch.autograd.Function):
+#  """
+#  We can implement our own custom autograd Functions by subclassing
+#  torch.autograd.Function and implementing the forward and backward passes
+#  which operate on Tensors.
+#  """
+#  def forward(self, input):
+#    """
+#    In the forward pass we receive a Tensor containing the input and return a
+#    Tensor containing the output. You can cache arbitrary Tensors for use in the
+#    backward pass using the save_for_backward method.
+#    """
+#    self.save_for_backward(input)
+#    return input.clamp(min=0)
+#
+#  def backward(self, grad_output):
+#    """
+#    In the backward pass we receive a Tensor containing the gradient of the loss
+#    with respect to the output, and we need to compute the gradient of the loss
+#    with respect to the input.
+#    """
+#    input, = self.saved_tensors
+#    grad_input = grad_output.clone()
+#    grad_input[input < 0] = 0
+#    return grad_input
 
 class RFS(BasicModel):
     def __init__(self, args):
