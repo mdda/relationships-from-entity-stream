@@ -111,4 +111,54 @@
    Recurrent Attention in Computer Vision
      https://netsprawl.wordpress.com/2016/07/26/recurrent-attention/
        https://github.com/jrbtaylor/visual-attention  (unfinished)
-   
+       
+       
+       
+## Implementation :
+
+Let's create a X/Y coordinate thing (2d)
+
+The 'keys' for the image will be the first 10 of the 24 /concat with/ the coordinate thing
+The 'values' for the image will be the second 14 of the 24 /concat with/ the coordinate thing
+
+So the attention query vector (output) will need to be n_q=12 wide, and will retrieve a n_v=16 wide value
+
+To get the attention weights, create a dot-product of the k&q numbers
+*  Option 1 : Softmax these.  
+*  Option 2 : use a temperature parameter on this vector Gumbel-SoftMax (Google ICLR-2017)
+*  Option 3 : Harden the Gumbel-SoftMax outputs for testing (and training?)
+
+https://arxiv.org/abs/1611.01144
+  Categorical Reparameterization with Gumbel-Softmax
+    This distribution has the essential property that it can be smoothly annealed into a categorical distribution. 
+    Use this as an 'action' when temperature -> 0
+See also : 
+  https://casmls.github.io/general/2017/02/01/GumbelSoftmax.html
+
+Since we don't know what 'language' will be constructed for the internal dialogue,
+  we can't do teacher-forcing.  Will have to go the slower route...
+  Similarly, using a dilated-CNN doesn't make sense, since part of the advantage is when doing forcing
+
+So, the input to the LSTM thing at the bottom will be n_v-wide
+  Initial input should be (say) all-zero
+output stage to the LSTM thing at the top will be n_q-wide
+
+Maximum length of objects to be processed is ~6.  
+So make LSTM stage 8 long
+
+1 layer version
+  1 layer of LSTM.   n_v input size, hidden_size = (question_size+answer_size), n_q output size
+  - hidden state initialised with (question + trainable_vector(answer_size)) 
+     Output 'answer' corresponds to answer_size portion of hidden units
+
+2 layer version
+  2 layers of LSTM.   n_v input size, hidden_size_1 = question_size, hidden_size_2 = answer_size, n_q output size
+  - bottom one initialised with question - final output is ignored
+  - top one initialised with zero - and outputs answer
+     Output 'answer' should be hidden units of LSTM layer 2
+
+Ideas:
+  Add a 'zeroes' key/value to allow for non-attentive states
+  Teach each question in turn, building up the curriculum
+
+

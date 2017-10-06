@@ -97,13 +97,13 @@ class RN(BasicModel):
 
         self.f_fc1 = nn.Linear(256, 256)
 
-        self.coord_oi = torch.FloatTensor(args.batch_size, 2)
-        self.coord_oj = torch.FloatTensor(args.batch_size, 2)
+        coord_oi = torch.FloatTensor(args.batch_size, 2)
+        coord_oj = torch.FloatTensor(args.batch_size, 2)
         if args.cuda:
-            self.coord_oi = self.coord_oi.cuda()
-            self.coord_oj = self.coord_oj.cuda()
-        self.coord_oi = Variable(self.coord_oi)
-        self.coord_oj = Variable(self.coord_oj)
+            coord_oi = coord_oi.cuda()
+            coord_oj = coord_oj.cuda()
+        self.coord_oi = Variable(coord_oi)
+        self.coord_oj = Variable(coord_oj)
 
         # prepare coord tensor
         def cvt_coord(i):
@@ -302,50 +302,6 @@ class RFS(BasicModel):
         
         self.conv = ConvInputModel()
         
-        # Let's create a X/Y coordinate thing (2d)
-        
-        # The 'keys' for the image will be the first 10 of the 24 /concat with/ the coordinate thing
-        # The 'values' for the image will be the second 14 of the 24 /concat with/ the coordinate thing
-        
-        # So the attention query vector (output) will need to be n_q=12 wide, and will retrieve a n_v=16 wide value
-        
-        # To get the attention weights, create a dot-product of the k&q numbers
-        # *  Option 1 : Softmax these.  
-        # *  Option 2 : use a temperature parameter on this vector Gumbel-SoftMax (Google ICLR-2017)
-        # *  Option 3 : Harden the Gumbel-SoftMax outputs for testing (and training?)
-        
-        # https://arxiv.org/abs/1611.01144
-        #   Categorical Reparameterization with Gumbel-Softmax
-        #     This distribution has the essential property that it can be smoothly annealed into a categorical distribution. 
-        #     Use this as an 'action' when temperature -> 0
-        # See also : 
-        #   https://casmls.github.io/general/2017/02/01/GumbelSoftmax.html
-        
-        # Since we don't know what 'language' will be constructed for the internal dialogue,
-        #   we can't do teacher-forcing.  Will have to go the slower route...
-        #   Similarly, using a dilated-CNN doesn't make sense, since part of the advantage is when doing forcing
-        
-        # So, the input to the LSTM thing at the bottom will be n_v-wide
-        #   Initial input should be (say) all-zero
-        # output stage to the LSTM thing at the top will be n_q-wide
-        
-        # Maximum length of objects to be processed is ~6.  
-        # So make LSTM stage 8 long
-
-        # 1 layer version
-        # 1 layer of LSTM.   n_v input size, hidden_size = (question_size+answer_size), n_q output size
-        # - hidden state initialised with (question + trainable_vector(answer_size)) 
-        #     Output 'answer' corresponds to answer_size portion of hidden units
-
-        # 2 layer version
-        # 2 layers of LSTM.   n_v input size, hidden_size_1 = question_size, hidden_size_2 = answer_size, n_q output size
-        # - bottom one initialised with question - final output is ignored
-        # - top one initialised with zero - and outputs answer
-        #     Output 'answer' should be hidden units of LSTM layer 2
-        
-        # Ideas:
-        #   Add a 'zeroes' key/value to allow for non-attentive states
-        #   Teach each question in turn, building up the curriculum
         
         
         ##(number of filters per object+coordinate of object)*2+question vector
@@ -357,13 +313,13 @@ class RFS(BasicModel):
         #
         #self.f_fc1 = nn.Linear(256, 256)
 
-        self.coord_oi = torch.FloatTensor(args.batch_size, 2)
-        self.coord_oj = torch.FloatTensor(args.batch_size, 2)
+        coord_oi = torch.FloatTensor(args.batch_size, 2)
+        coord_oj = torch.FloatTensor(args.batch_size, 2)
         if args.cuda:
-            self.coord_oi = self.coord_oi.cuda()
-            self.coord_oj = self.coord_oj.cuda()
-        self.coord_oi = Variable(self.coord_oi)
-        self.coord_oj = Variable(self.coord_oj)
+            coord_oi = coord_oi.cuda()
+            coord_oj = coord_oj.cuda()
+        self.coord_oi = Variable(coord_oi)
+        self.coord_oj = Variable(coord_oj)
 
         # prepare coord tensor
         def cvt_coord(i):
@@ -378,6 +334,13 @@ class RFS(BasicModel):
             np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
         self.coord_tensor.data.copy_(torch.from_numpy(np_coord_tensor))
 
+        # LSTM layer(s)
+        # LSTM hidden initialisation
+        # LSTM input  initialisation
+
+        self.rnn = nn.GRUCell(10, 20)
+        self.hx_out = Variable(torch.randn(3, 20))
+        >>> output = []
 
         #self.fcout = FCOutputModel()
         
@@ -398,12 +361,23 @@ class RFS(BasicModel):
         n_k, n_v = 12, 16
         
         ks_nocoords = x_flat.narrow(3, 0, n_k-2)
-        vs_nocoords = x_flat.narrow(3, n_k-2, n_k-2 + n_v-2)
+        vs_nocoords = x_flat.narrow(3, n_k-2, n_v-2)
         
         # add coordinates
         ks = torch.cat([ks_nocoords, self.coord_tensor], 2)
         vs = torch.cat([vs_nocoords, self.coord_tensor], 2)
         
+        
+        seq_len=8
+        
+        hx = torch.concat( [ qst, self.hx_out ] )
+        rnn_input = self.rnn_input
+        
+        for i in range(seq_len):
+          hx = self.rnn(rnn_input, hx)
+          
+          #output.append(hx)
+
         
         
         
@@ -444,3 +418,5 @@ class RFS(BasicModel):
         x_f = F.relu(x_f)
         
         return self.fcout(x_f)
+
+
