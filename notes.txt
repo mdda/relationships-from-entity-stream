@@ -146,16 +146,24 @@ output stage to the LSTM thing at the top will be n_q-wide
 Maximum length of objects to be processed is ~6.  
 So make LSTM stage 8 long
 
-1 layer version
-  1 layer of LSTM.   n_v input size, hidden_size = (question_size+answer_size), n_q output size
-  - hidden state initialised with (question + trainable_vector(answer_size)) 
-     Output 'answer' corresponds to answer_size portion of hidden units
+#1 layer version
+#  1 layer of LSTM.   n_v input size, hidden_size = (question_size+answer_size), n_q output size
+#  - hidden state initialised with (question + trainable_vector(answer_size)) 
+#     Output 'answer' corresponds to answer_size portion of hidden units
 
-2 layer version
-  2 layers of LSTM.   n_v input size, hidden_size_1 = question_size, hidden_size_2 = answer_size, n_q output size
-  - bottom one initialised with question - final output is ignored
-  - top one initialised with zero - and outputs answer
-     Output 'answer' should be hidden units of LSTM layer 2
+#2 layer version
+#  2 layers of LSTM.   n_v input size, hidden_size_1 = question_size, hidden_size_2 = answer_size, n_q output size
+#  - bottom one initialised with question - final output is ignored
+#  - top one initialised with zero - and outputs answer
+#     Output 'answer' should be hidden units of LSTM layer 2
+
+Two major layers : 
+  First RNN : (The internal dialogue stage)
+    inputs = 'vs' from image, hidden0=question+(0s), output = hidden*W = qs -> softmax -> weighted vs for next step
+
+  Second RNN : (The interpreting the dialogue stage)
+    inputs = outputs from previous layer, hidden0=question+(0s), final answer=hidden(0s portion)
+
 
 Ideas:
   Add a 'zeroes' key/value to allow for non-attentive states
