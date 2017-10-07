@@ -157,12 +157,16 @@ So make LSTM stage 8 long
 #  - top one initialised with zero - and outputs answer
 #     Output 'answer' should be hidden units of LSTM layer 2
 
+Basic Query IO : 
+  question=11d
+  answer=10d
+
 Two major layers : 
   First RNN : (The internal dialogue stage)
-    inputs = 'vs' from image, hidden0=question+(0s), output = hidden*W = qs -> softmax -> weighted vs for next step
+    inputs = 'vs(16d)' from image, hidden0=question+(0s)=16d, output = hidden*W = qs(12d) -> softmax -> weighted vs for next step
 
   Second RNN : (The interpreting the dialogue stage)
-    inputs = outputs from previous layer, hidden0=question+(0s), final answer=hidden(0s portion)
+    inputs = outputs from previous layer, hidden0=question+(0s)+answer0s=24d, final answer=hidden(0s portion)
 
 
 Ideas:
