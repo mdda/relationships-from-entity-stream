@@ -163,14 +163,16 @@ Basic Query IO :
 
 Two major layers : 
   First RNN : (The internal dialogue stage)
-    inputs = 'vs(16d)' from image, hidden0=question+(0s)=16d, output = hidden*W = qs(12d) -> softmax -> weighted vs for next step
+    inputs = 'vs(16d)' from image, hidden0=question[0:11]+0s[0:5]=16d, output = hidden*W = qs(12d) -> softmax -> weighted vs for next step
 
-  Second RNN : (The interpreting the dialogue stage)
-    inputs = outputs from previous layer, hidden0=question+(0s)+answer0s=24d, final answer=hidden(0s portion)
+  Second RNN : (The interpreting the dialogue stage - in two stages)
+    inputs = outputs from previous layer, hidden0=16d=question[0:11]+0s[0:5]=16d
+    inputs = hiddens from previous layer, hidden0=0s[0:16]=16d, final answer=hidden_final[0:10]
 
 
 Ideas:
   Add a 'zeroes' key/value to allow for non-attentive states
+  Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
   Teach each question in turn, building up the curriculum
 
 
