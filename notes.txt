@@ -171,8 +171,8 @@ Two major layers :
 
 
 Ideas:
-  Add a 'zeroes' key/value to allow for non-attentive states
+  Add a 'zeroes' or 'ones' key/value 'entity' to allow for non-attentive states
   Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
-  Teach each question in turn, building up the curriculum
+  Teach each question type in turn, building up the curriculum
 
 

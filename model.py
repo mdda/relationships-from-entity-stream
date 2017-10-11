@@ -300,19 +300,9 @@ class RFS(BasicModel):
     def __init__(self, args):
         super(RN, self).__init__(args, 'RFS')
         
-        self.conv = ConvInputModel()
+        self.conv = ConvInputModel()  
+        # output is 24 channels in a 5x5 grid
         
-        
-        
-        ##(number of filters per object+coordinate of object)*2+question vector
-        #self.g_fc1 = nn.Linear((24+2)*2+11, 256)
-        # 
-        #self.g_fc2 = nn.Linear(256, 256)
-        #self.g_fc3 = nn.Linear(256, 256)
-        #self.g_fc4 = nn.Linear(256, 256)
-        #
-        #self.f_fc1 = nn.Linear(256, 256)
-
         coord_oi = torch.FloatTensor(args.batch_size, 2)
         coord_oj = torch.FloatTensor(args.batch_size, 2)
         if args.cuda:
@@ -325,24 +315,38 @@ class RFS(BasicModel):
         def cvt_coord(i):
             return [(i/5-2)/2., (i%5-2)/2.]
         
-        self.coord_tensor = torch.FloatTensor(args.batch_size, 25, 2)
+        coord_tensor = torch.FloatTensor(args.batch_size, 25, 2)
         if args.cuda:
-            self.coord_tensor = self.coord_tensor.cuda()
-        self.coord_tensor = Variable(self.coord_tensor)
+            coord_tensor = coord_tensor.cuda()
+        self.coord_tensor = Variable(coord_tensor)
+        
         np_coord_tensor = np.zeros((args.batch_size, 25, 2))
         for i in range(25):
             np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
         self.coord_tensor.data.copy_(torch.from_numpy(np_coord_tensor))
 
-        # LSTM layer(s)
-        # LSTM hidden initialisation
-        # LSTM input  initialisation
+        self.question_size   = 11
+        self.answer_size     = 10
+        self.rnn_hidden_size = 16 # > question_size and answer_size
+        
+        self.key_size = self.query_size   = 12
+        self.value_size   = 16  # 24+2+2 = key_size + value_size
 
-        self.rnn = nn.GRUCell(10, 20)
-        self.hx_out = Variable(torch.randn(3, 20))
-        >>> output = []
+        ent_stream_rnn_start = torch.FloatTensor(args.batch_size, 25, 2)
+        if args.cuda:
+            ent_stream_rnn_start = ent_stream_rnn_start.cuda()
+        self.ent_stream_rnn_start = Variable(ent_stream_rnn_start)
+        
+        self.ent_stream_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)   #input_size, hidden_size, bias=True)
+        
+        self.stream_rnn_to_query = nn.Linear(self.rnn_hidden_size, self.query_size)
 
-        #self.fcout = FCOutputModel()
+        # No parameters needed for softmax attention...  
+        # Temperature for Gumbel?
+
+        self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
+        self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
+
         
         self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
 
@@ -351,72 +355,56 @@ class RFS(BasicModel):
         x = self.conv(img) ## x = (64 x 24 x 5 x 5) = (batch#, channels, x-s, y-s)
         
         """g"""
-        mb = x.size()[0]  # minibatch
+        batch_size = x.size()[0]  # minibatch
         n_channels = x.size()[1]
         #d = x.size()[2]
         # x_flat = (64 x 25 x 24)
-        x_flat = x.view(mb, n_channels, d*d).permute(0,2,1)
+        x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
         
         # Split the x_flat into (keys) and (values)
-        n_k, n_v = 12, 16
         
-        ks_nocoords = x_flat.narrow(3, 0, n_k-2)
-        vs_nocoords = x_flat.narrow(3, n_k-2, n_v-2)
+        ks_nocoords = x_flat.narrow(3, 0, self.key_size-2)
+        vs_nocoords = x_flat.narrow(3, self.key_size-2, self.value_size-2)
         
         # add coordinates
         ks = torch.cat([ks_nocoords, self.coord_tensor], 2)
         vs = torch.cat([vs_nocoords, self.coord_tensor], 2)
         
-        
         seq_len=8
         
-        hx = torch.concat( [ qst, self.hx_out ] )
-        rnn_input = self.rnn_input
+        ent_stream_rnn_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
+        ent_stream_rnn_input = self.ent_stream_rnn_start
         
+        stream_values = [] # Will be filled by RNN and attention process
         for i in range(seq_len):
-          hx = self.rnn(rnn_input, hx)
+          ent_stream_rnn_hidden = self.ent_stream_rnn(ent_stream_rnn_input, ent_stream_rnn_hidden)
           
-          #output.append(hx)
+          # Convert the ent_stream hidden layer to a query
+          qs = self.stream_rnn_to_query( ent_stream_rnn_hidden )
+          
+          # Now do the dot-product with the keys (flattened image-like)
+          ent_similarity = torch.bmm( ks, torch.unsqueeze(qs, 2))
+          
+          # And softmax (etc) to get the weights
+          ent_weights = torch.softmax( ent_similarity )
+          
+          # Now multiply through to get the resulting values
+          stream_next_value = torch.bmm( ent_weights, vs )
+          
+          stream_values.append(stream_next_value)
+          ent_stream_rnn_input = stream_next_value
 
+
+        # Now interpret the values from the stream
+        stream_question_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
+        stream_answer_hidden   = zeros.zeros(batch_size, self.rnn_hidden_size)
         
-        
-        
-        
-        
-        # add question everywhere
-        #qst = torch.unsqueeze(qst, 1)
-        #qst = qst.repeat(1,25,1)
-        #qst = torch.unsqueeze(qst, 2)
-        
-        # cast all pairs against each other
-        #x_i = torch.unsqueeze(x_flat,1) # (64x1x25x26+11)
-        #x_i = x_i.repeat(1,25,1,1) # (64x25x25x26+11)
-        #x_j = torch.unsqueeze(x_flat,2) # (64x25x1x26+11)
-        #x_j = torch.cat([x_j,qst],3)
-        #x_j = x_j.repeat(1,1,25,1) # (64x25x25x26+11)
-        
-        # concatenate all together
-        #x_full = torch.cat([x_i,x_j],3) # (64x25x25x2*26+11)
-        
-        # reshape for passing through network
-        x_ = x_full.view(mb*d*d*d*d,63)
-        x_ = self.g_fc1(x_)
-        x_ = F.relu(x_)
-        x_ = self.g_fc2(x_)
-        x_ = F.relu(x_)
-        x_ = self.g_fc3(x_)
-        x_ = F.relu(x_)
-        x_ = self.g_fc4(x_)
-        x_ = F.relu(x_)
-        
-        # reshape again and sum
-        x_g = x_.view(mb,d*d*d*d,256)
-        x_g = x_g.sum(1).squeeze()
-        
-        """f"""
-        x_f = self.f_fc1(x_g)
-        x_f = F.relu(x_f)
-        
-        return self.fcout(x_f)
+        for stream_question_rnn_input in stream_values:
+          stream_question_hidden = self.stream_question_rnn(stream_question_rnn_input, stream_question_hidden)
+
+          stream_answer_hidden   = self.stream_answer_rnn(stream_question_hidden, stream_answer_hidden)
+          
+        # Final answer is in stream_answer_hidden
+        return stream_answer_hidden.narrow(1, 0, self.answer_size)
 
 
