@@ -337,10 +337,11 @@ class RFS(BasicModel):
             self.ent_stream_rnn_hidden_pad = self.ent_stream_rnn_hidden_pad.cuda()
         #print("ent_stream_rnn_hidden_pad.size() : ", self.ent_stream_rnn_hidden_pad.size())  # (32,5)
 
-        ent_stream_rnn_start = torch.FloatTensor(args.batch_size, self.value_size)  
+        #ent_stream_rnn_start = torch.FloatTensor(args.batch_size, self.value_size)  
+        ent_stream_rnn_start = torch.zeros( (args.batch_size, self.value_size) )  
         if args.cuda:
             ent_stream_rnn_start = ent_stream_rnn_start.cuda()
-        self.ent_stream_rnn_start = Variable(ent_stream_rnn_start)
+        self.ent_stream_rnn_start = Variable(ent_stream_rnn_start)  #  , requires_grad=True ?
         
         self.ent_stream_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)   #input_size, hidden_size, bias=True)
         
@@ -350,14 +351,15 @@ class RFS(BasicModel):
         # Temperature for Gumbel?
 
 
-        self.stream_question_hidden_pad = torch.zeros(args.batch_size, self.rnn_hidden_size-self.question_size)
+        stream_question_hidden_pad = torch.zeros( (args.batch_size, self.rnn_hidden_size-self.question_size) )
         if args.cuda:
-            self.stream_question_hidden_pad = self.stream_question_hidden_pad.cuda()
+            stream_question_hidden_pad = stream_question_hidden_pad.cuda()
+        self.stream_question_hidden_pad = Variable(stream_question_hidden_pad, requires_grad=False)
 
-        self.stream_answer_hidden   = torch.zeros(args.batch_size, self.rnn_hidden_size)
+        stream_answer_hidden   = torch.zeros( (args.batch_size, self.rnn_hidden_size) )
         if args.cuda:
-            self.stream_answer_hidden = self.stream_answer_hidden.cuda()
-
+            stream_answer_hidden = stream_answer_hidden.cuda()
+        self.stream_answer_hidden = Variable(stream_answer_hidden, requires_grad=False)
 
         self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
         self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
@@ -440,11 +442,18 @@ class RFS(BasicModel):
         stream_answer_hidden   = self.stream_answer_hidden
         
         for stream_question_rnn_input in stream_values:
+          #print("stream_question_rnn_input.size() : ", stream_question_rnn_input.size())  # (32,16)
+          #print("stream_question_hidden.size() : ", stream_question_hidden.size())  # (32,16)
           stream_question_hidden = self.stream_question_rnn(stream_question_rnn_input, stream_question_hidden)
 
+          #print("stream_question_hidden.size() : ", stream_question_hidden.size())  # (32,16)
+          print("stream_answer_hidden.size() : ", stream_answer_hidden.size())  # (32,16)
           stream_answer_hidden   = self.stream_answer_rnn(stream_question_hidden, stream_answer_hidden)
           
         # Final answer is in stream_answer_hidden
-        return stream_answer_hidden.narrow(1, 0, self.answer_size)
+        ans = stream_answer_hidden.narrow(1, 0, self.answer_size)
+        print("ans.size() : ", ans.size())  # (32,10)
+        
+        return ans
 
 
