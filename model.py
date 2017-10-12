@@ -332,6 +332,11 @@ class RFS(BasicModel):
         self.key_size = self.query_size   = 12
         self.value_size   = 16  # 24+2+2 = key_size + value_size
 
+        self.ent_stream_rnn_hidden_pad = torch.zeros(args.batch_size, self.rnn_hidden_size-self.question_size)
+        if args.cuda:
+            self.ent_stream_rnn_hidden_pad = self.ent_stream_rnn_hidden_pad.cuda()
+        #print("ent_stream_rnn_hidden_pad.size() : ", self.ent_stream_rnn_hidden_pad.size())  # (32,5)
+
         ent_stream_rnn_start = torch.FloatTensor(args.batch_size, 25, 2)
         if args.cuda:
             ent_stream_rnn_start = ent_stream_rnn_start.cuda()
@@ -356,15 +361,15 @@ class RFS(BasicModel):
         
         """g"""
         batch_size = x.size()[0]  # minibatch
-        n_channels = x.size()[1]
-        #d = x.size()[2]
+        n_channels = x.size()[1]  # output features of CNN
+        d = x.size()[2]           # grid size over image
+        
         # x_flat = (64 x 25 x 24)
         x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
         
         # Split the x_flat into (keys) and (values)
-        
-        ks_nocoords = x_flat.narrow(3, 0, self.key_size-2)
-        vs_nocoords = x_flat.narrow(3, self.key_size-2, self.value_size-2)
+        ks_nocoords = x_flat.narrow(2, 0, self.key_size-2)
+        vs_nocoords = x_flat.narrow(2, self.key_size-2, self.value_size-2)
         
         # add coordinates
         ks = torch.cat([ks_nocoords, self.coord_tensor], 2)
@@ -372,7 +377,12 @@ class RFS(BasicModel):
         
         seq_len=8
         
-        ent_stream_rnn_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
+        #print("qst.size() : ", qst.size())  # (32,11)
+
+        #ent_stream_rnn_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
+        ent_stream_rnn_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
+        print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)?
+        
         ent_stream_rnn_input = self.ent_stream_rnn_start
         
         stream_values = [] # Will be filled by RNN and attention process

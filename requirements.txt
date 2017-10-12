@@ -1,4 +1,5 @@
 
+# See : http://pytorch.org/  "Get Started"
 # Python 3.6, GPU=cuda8.0
 http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp36-cp36m-manylinux1_x86_64.whl 
 torchvision
