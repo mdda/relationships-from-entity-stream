@@ -49,10 +49,12 @@ elif args.model=='CNN_MLP':
 else:
   model = RN(args)
 
-#data_dirs = './data'
-data_dirs = '../deep-learning-workshop/notebooks/work-in-progress/relational-networks/data'
-  
+# For saving the checkpoints
 model_dirs = './model'
+
+# For loading the data (possibly a symlink to relational-networks/data)
+data_dirs = './data'
+  
 bs = args.batch_size
 input_img = torch.FloatTensor(bs, 3, 75, 75)
 input_qst = torch.FloatTensor(bs, 11)

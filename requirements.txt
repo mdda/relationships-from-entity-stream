@@ -3,6 +3,9 @@
 http://download.pytorch.org/whl/cu80/torch-0.2.0.post3-cp36-cp36m-manylinux1_x86_64.whl 
 torchvision
 
+# This is for Jupyter 'fake' of argsparse
+attrdict
+
 # Needs ABI 0xb (rather than numpy 0xa installed as 1.12.1)
 numpy>=1.13
 

@@ -298,7 +298,7 @@ class Harden(nn.Module):
 
 class RFS(BasicModel):
     def __init__(self, args):
-        super(RN, self).__init__(args, 'RFS')
+        super(RFS, self).__init__(args, 'RFS')
         
         self.conv = ConvInputModel()  
         # output is 24 channels in a 5x5 grid
