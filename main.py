@@ -5,7 +5,7 @@ Code is based on pytorch/examples/mnist (https://github.com/pytorch/examples/tre
 from __future__ import print_function
 import argparse
 import os
-#import cPickle as pickle
+
 import pickle
 import random
 import numpy as np
