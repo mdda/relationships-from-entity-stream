@@ -387,8 +387,8 @@ class RFS(BasicModel):
         ks = torch.cat([ks_nocoords, self.coord_tensor], 2)
         vs = torch.cat([vs_nocoords, self.coord_tensor], 2)
         
-        print("ks.size() : ", ks.size())  # (32,25,12)
-        print("vs.size() : ", vs.size())  # (32,25,16)
+        #print("ks.size() : ", ks.size())  # (32,25,12)
+        #print("vs.size() : ", vs.size())  # (32,25,16)
         
         #print("qst.size() : ", qst.size())  # (32,11)
   
@@ -430,7 +430,7 @@ class RFS(BasicModel):
           
           # Now multiply through to get the resulting values
           stream_next_value = torch.squeeze( torch.bmm( torch.unsqueeze(ent_weights,1), vs ) )
-          print("stream_next_value.size() : ", stream_next_value.size())  # (32, 16)
+          #print("stream_next_value.size() : ", stream_next_value.size())  # (32, 16)
           
           stream_values.append(stream_next_value)
           ent_stream_rnn_input = stream_next_value
@@ -447,12 +447,12 @@ class RFS(BasicModel):
           stream_question_hidden = self.stream_question_rnn(stream_question_rnn_input, stream_question_hidden)
 
           #print("stream_question_hidden.size() : ", stream_question_hidden.size())  # (32,16)
-          print("stream_answer_hidden.size() : ", stream_answer_hidden.size())  # (32,16)
+          #print("stream_answer_hidden.size() : ", stream_answer_hidden.size())  # (32,16)
           stream_answer_hidden   = self.stream_answer_rnn(stream_question_hidden, stream_answer_hidden)
           
         # Final answer is in stream_answer_hidden
         ans = stream_answer_hidden.narrow(1, 0, self.answer_size)
-        print("ans.size() : ", ans.size())  # (32,10)
+        #print("ans.size() : ", ans.size())  # (32,10)
         
         return ans
 
