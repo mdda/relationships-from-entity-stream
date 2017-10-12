@@ -3,7 +3,9 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
+
 from torch.autograd import Variable
+from torch.nn import Parameter
 
 
 class ConvInputModel(nn.Module):
@@ -302,6 +304,7 @@ class RFS(BasicModel):
         
         self.conv = ConvInputModel()  
         # output is 24 channels in a 5x5 grid
+
         
         coord_oi = torch.FloatTensor(args.batch_size, 2)
         coord_oj = torch.FloatTensor(args.batch_size, 2)
@@ -325,23 +328,26 @@ class RFS(BasicModel):
             np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
         self.coord_tensor.data.copy_(torch.from_numpy(np_coord_tensor))
 
+
         self.question_size   = 11
         self.answer_size     = 10
+        
         self.rnn_hidden_size = 16 # > question_size and answer_size
+        #self.rnn_hidden_size = 64 # > question_size and answer_size
         
         self.key_size = self.query_size   = 12
         self.value_size   = 16  # 24+2+2 = key_size + value_size
 
-        self.ent_stream_rnn_hidden_pad = torch.zeros(args.batch_size, self.rnn_hidden_size-self.question_size)
+        ent_stream_rnn_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) )
         if args.cuda:
-            self.ent_stream_rnn_hidden_pad = self.ent_stream_rnn_hidden_pad.cuda()
-        #print("ent_stream_rnn_hidden_pad.size() : ", self.ent_stream_rnn_hidden_pad.size())  # (32,5)
+            ent_stream_rnn_hidden_pad = ent_stream_rnn_hidden_pad.cuda()
+        self.ent_stream_rnn_hidden_pad = Parameter(ent_stream_rnn_hidden_pad, requires_grad=True)
+        #print("ent_stream_rnn_hidden_pad.size() : ", self.ent_stream_rnn_hidden_pad.size())  # (5)
 
-        #ent_stream_rnn_start = torch.FloatTensor(args.batch_size, self.value_size)  
-        ent_stream_rnn_start = torch.zeros( (args.batch_size, self.value_size) )  
+        ent_stream_rnn_start = torch.randn( (1, self.value_size) )  
         if args.cuda:
             ent_stream_rnn_start = ent_stream_rnn_start.cuda()
-        self.ent_stream_rnn_start = Variable(ent_stream_rnn_start)  #  , requires_grad=True ?
+        self.ent_stream_rnn_start = Parameter(ent_stream_rnn_start, requires_grad=True)
         
         self.ent_stream_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)   #input_size, hidden_size, bias=True)
         
@@ -351,20 +357,22 @@ class RFS(BasicModel):
         # Temperature for Gumbel?
 
 
-        stream_question_hidden_pad = torch.zeros( (args.batch_size, self.rnn_hidden_size-self.question_size) )
+        stream_question_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) )
         if args.cuda:
             stream_question_hidden_pad = stream_question_hidden_pad.cuda()
-        self.stream_question_hidden_pad = Variable(stream_question_hidden_pad, requires_grad=False)
+        self.stream_question_hidden_pad = Parameter(stream_question_hidden_pad, requires_grad=True)
 
-        stream_answer_hidden   = torch.zeros( (args.batch_size, self.rnn_hidden_size) )
+        stream_answer_hidden   = torch.randn( (1, self.rnn_hidden_size) )
         if args.cuda:
             stream_answer_hidden = stream_answer_hidden.cuda()
-        self.stream_answer_hidden = Variable(stream_answer_hidden, requires_grad=False)
+        self.stream_answer_hidden = Parameter(stream_answer_hidden, requires_grad=True)
 
         self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
         self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
 
         
+        #for param in self.parameters():
+        #    print(type(param.data), param.size())        
         self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
 
 
@@ -396,14 +404,17 @@ class RFS(BasicModel):
         seq_len=8
         
         #ent_stream_rnn_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
-        ent_stream_rnn_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
+        #ent_stream_rnn_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
+        ent_stream_rnn_hidden = torch.cat( 
+             [qst, self.ent_stream_rnn_hidden_pad.expand( (batch_size, self.rnn_hidden_size-self.question_size) )], 1)
         #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
+        #print("ent_stream_rnn_hidden: ", ent_stream_rnn_hidden) 
         
-        ent_stream_rnn_input = self.ent_stream_rnn_start
+        ent_stream_rnn_input = self.ent_stream_rnn_start.expand( (batch_size, self.value_size) )
         
         stream_values = [] # Will be filled by RNN and attention process
         for i in range(seq_len):
-          #print("ent_stream_rnn_input.size() : ", ent_stream_rnn_input.size())  # (32,16)
+          #print("ent_stream_rnn_input.size()  : ", ent_stream_rnn_input.size())   # (32,16)
           #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
           ent_stream_rnn_hidden = self.ent_stream_rnn(ent_stream_rnn_input, ent_stream_rnn_hidden)
           
@@ -438,8 +449,11 @@ class RFS(BasicModel):
 
         # Now interpret the values from the stream
         #stream_question_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
-        stream_question_hidden = torch.cat( [qst, self.stream_question_hidden_pad], 1)
-        stream_answer_hidden   = self.stream_answer_hidden
+        #stream_question_hidden = torch.cat( [qst, self.stream_question_hidden_pad], 1)
+        stream_question_hidden = torch.cat( 
+                         [qst, self.stream_question_hidden_pad.expand( (batch_size, self.rnn_hidden_size-self.question_size) )], 1)
+        stream_answer_hidden   = self.stream_answer_hidden.expand( (batch_size, self.rnn_hidden_size) )
+        #print("stream_answer_hidden0", stream_answer_hidden)
         
         for stream_question_rnn_input in stream_values:
           #print("stream_question_rnn_input.size() : ", stream_question_rnn_input.size())  # (32,16)
@@ -449,6 +463,7 @@ class RFS(BasicModel):
           #print("stream_question_hidden.size() : ", stream_question_hidden.size())  # (32,16)
           #print("stream_answer_hidden.size() : ", stream_answer_hidden.size())  # (32,16)
           stream_answer_hidden   = self.stream_answer_rnn(stream_question_hidden, stream_answer_hidden)
+          #print("stream_answer_hidden", stream_answer_hidden)
           
         # Final answer is in stream_answer_hidden
         ans = stream_answer_hidden.narrow(1, 0, self.answer_size)
