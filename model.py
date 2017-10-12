@@ -337,7 +337,7 @@ class RFS(BasicModel):
             self.ent_stream_rnn_hidden_pad = self.ent_stream_rnn_hidden_pad.cuda()
         #print("ent_stream_rnn_hidden_pad.size() : ", self.ent_stream_rnn_hidden_pad.size())  # (32,5)
 
-        ent_stream_rnn_start = torch.FloatTensor(args.batch_size, 25, 2)
+        ent_stream_rnn_start = torch.FloatTensor(args.batch_size, self.value_size)  
         if args.cuda:
             ent_stream_rnn_start = ent_stream_rnn_start.cuda()
         self.ent_stream_rnn_start = Variable(ent_stream_rnn_start)
@@ -348,6 +348,16 @@ class RFS(BasicModel):
 
         # No parameters needed for softmax attention...  
         # Temperature for Gumbel?
+
+
+        self.stream_question_hidden_pad = torch.zeros(args.batch_size, self.rnn_hidden_size-self.question_size)
+        if args.cuda:
+            self.stream_question_hidden_pad = self.stream_question_hidden_pad.cuda()
+
+        self.stream_answer_hidden   = torch.zeros(args.batch_size, self.rnn_hidden_size)
+        if args.cuda:
+            self.stream_answer_hidden = self.stream_answer_hidden.cuda()
+
 
         self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
         self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
@@ -375,39 +385,59 @@ class RFS(BasicModel):
         ks = torch.cat([ks_nocoords, self.coord_tensor], 2)
         vs = torch.cat([vs_nocoords, self.coord_tensor], 2)
         
-        seq_len=8
+        print("ks.size() : ", ks.size())  # (32,25,12)
+        print("vs.size() : ", vs.size())  # (32,25,16)
         
         #print("qst.size() : ", qst.size())  # (32,11)
+  
 
+        seq_len=8
+        
         #ent_stream_rnn_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
         ent_stream_rnn_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
-        print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)?
+        #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
         
         ent_stream_rnn_input = self.ent_stream_rnn_start
         
         stream_values = [] # Will be filled by RNN and attention process
         for i in range(seq_len):
+          #print("ent_stream_rnn_input.size() : ", ent_stream_rnn_input.size())  # (32,16)
+          #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
           ent_stream_rnn_hidden = self.ent_stream_rnn(ent_stream_rnn_input, ent_stream_rnn_hidden)
           
           # Convert the ent_stream hidden layer to a query
           qs = self.stream_rnn_to_query( ent_stream_rnn_hidden )
-          
+          #print("qs.size() : ", qs.size())  # (32,12)
+
+          #print("qs.unsqueeze(2).size() : ", torch.unsqueeze(qs, 2).size())  # (32,12,1)
+                    
           # Now do the dot-product with the keys (flattened image-like)
-          ent_similarity = torch.bmm( ks, torch.unsqueeze(qs, 2))
-          
-          # And softmax (etc) to get the weights
-          ent_weights = torch.softmax( ent_similarity )
+          ent_similarity = torch.bmm( ks, torch.unsqueeze(qs, 2) )
+          #print("ent_similarity.size() : ", ent_similarity.size())  # (32,25,1)
+
+
+          if True:
+            # Softmax to get the weights
+            ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )
+
+            
+          #print("ent_weights.size() : ", ent_weights.size())  # (32,25)
+          #print("ent_weights.unsqueeze(2).size() : ", torch.unsqueeze(ent_weights,2).size())  # (32,25,1)  
+          #print("ent_weights.unsqueeze(1).size() : ", torch.unsqueeze(ent_weights,1).size())  # (32,1,25)
+
           
           # Now multiply through to get the resulting values
-          stream_next_value = torch.bmm( ent_weights, vs )
+          stream_next_value = torch.squeeze( torch.bmm( torch.unsqueeze(ent_weights,1), vs ) )
+          print("stream_next_value.size() : ", stream_next_value.size())  # (32, 16)
           
           stream_values.append(stream_next_value)
           ent_stream_rnn_input = stream_next_value
 
 
         # Now interpret the values from the stream
-        stream_question_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
-        stream_answer_hidden   = zeros.zeros(batch_size, self.rnn_hidden_size)
+        #stream_question_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
+        stream_question_hidden = torch.cat( [qst, self.stream_question_hidden_pad], 1)
+        stream_answer_hidden   = self.stream_answer_hidden
         
         for stream_question_rnn_input in stream_values:
           stream_question_hidden = self.stream_question_rnn(stream_question_rnn_input, stream_question_hidden)
