@@ -243,9 +243,12 @@ def sample_gumbel(input):
     eps = 1e-20
     noise.add_(eps).log_().neg_()
     noise.add_(eps).log_().neg_()
-    return Variable(noise)
+    res = Variable(noise)
+    if input.is_cuda:
+      res = res.cuda()
+    return res
 
-def gumbel_softmax_sample(input, temperature=1.):
+def gumbel_softmax_sample(input, temperature=0.5):
     noise = sample_gumbel(input)
     x = (input + noise) / temperature
     x = F.log_softmax(x)
@@ -370,10 +373,12 @@ class RFS(BasicModel):
         self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
         self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
 
+        self.stream_answer_to_output = nn.Linear(self.rnn_hidden_size, self.answer_size)
         
         #for param in self.parameters():
         #    print(type(param.data), param.size())        
-        self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
+        #self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
+        self.optimizer = optim.RMSprop(self.parameters(), lr=args.lr/10.)
 
 
     def forward(self, img, qst):
@@ -432,7 +437,10 @@ class RFS(BasicModel):
           if True:
             # Softmax to get the weights
             ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )
-
+            
+          if False:
+            # Gumbel-Softmax to get the weights:
+            ent_weights = gumbel_softmax_sample( torch.squeeze( ent_similarity), temperature=0.5 )
             
           #print("ent_weights.size() : ", ent_weights.size())  # (32,25)
           #print("ent_weights.unsqueeze(2).size() : ", torch.unsqueeze(ent_weights,2).size())  # (32,25,1)  
@@ -466,9 +474,11 @@ class RFS(BasicModel):
           #print("stream_answer_hidden", stream_answer_hidden)
           
         # Final answer is in stream_answer_hidden
-        ans = stream_answer_hidden.narrow(1, 0, self.answer_size)
+        #ans = stream_answer_hidden.narrow(1, 0, self.answer_size)
         #print("ans.size() : ", ans.size())  # (32,10)
         
-        return ans
+        ans = self.stream_answer_to_output( stream_answer_hidden )
+        
+        return F.log_softmax(ans)
 
 
