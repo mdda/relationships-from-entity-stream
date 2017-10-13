@@ -167,12 +167,18 @@ Two major layers :
 
   Second RNN : (The interpreting the dialogue stage - in two stages)
     inputs = outputs from previous layer, hidden0=16d=question[0:11]+0s[0:5]=16d
-    inputs = hiddens from previous layer, hidden0=0s[0:16]=16d, final answer=hidden_final[0:10]
+    inputs = hiddens from previous layer, hidden0=0s[0:16]=16d, final answer=softmax( hidden_final*W )=10d
 
 
 Ideas:
   Add a 'zeroes' or 'ones' key/value 'entity' to allow for non-attentive states
   Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
   Teach each question type in turn, building up the curriculum
+
+
+
+# 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
+# Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
+
 
 

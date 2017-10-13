@@ -6,6 +6,8 @@ from __future__ import print_function
 import argparse
 import os
 
+import datetime
+
 import pickle
 import random
 import numpy as np
@@ -100,6 +102,8 @@ def train(epoch, rel, norel):
     rel = cvt_data_axis(rel)
     norel = cvt_data_axis(norel)
 
+    t0 = datetime.datetime.now()
+    
     for batch_idx in range(len(rel[0]) // bs):
         tensor_data(rel, batch_idx)
         accuracy_rel = model.train_(input_img, input_qst, label)
@@ -108,8 +112,14 @@ def train(epoch, rel, norel):
         accuracy_norel = model.train_(input_img, input_qst, label)
 
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)] Relations accuracy: {:.0f}% | Non-relations accuracy: {:.0f}%'.format(epoch, batch_idx * bs * 2, len(rel[0]) * 2, \
-                                                                                                                           100. * batch_idx * bs/ len(rel[0]), accuracy_rel, accuracy_norel))
+            print('Train Epoch: {} [{}/{} ({:.0f}%)] Relations accuracy: {:.0f}% | Non-relations accuracy: {:.0f}%'.format(
+                    epoch, batch_idx * bs * 2, 
+                    len(rel[0]) * 2, 
+                    100. * batch_idx * bs/ len(rel[0]), 
+                    accuracy_rel, accuracy_norel
+                 ))
+    print("  Epoch training elapsed time : %.0fsecs" % (datetime.datetime.now()-t0).total_seconds())
+                                                                                                                           
             
 
 def test(epoch, rel, norel):
@@ -132,7 +142,7 @@ def test(epoch, rel, norel):
 
     accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
     accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
-    print('\n Test set: Relation accuracy: {:.0f}% | Non-relation accuracy: {:.0f}%\n'.format(
+    print('\n  Test set: Relation accuracy: {:.0f}% | Non-relation accuracy: {:.0f}%\n'.format(
         accuracy_rel, accuracy_norel))
 
     

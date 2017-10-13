@@ -335,8 +335,8 @@ class RFS(BasicModel):
         self.question_size   = 11
         self.answer_size     = 10
         
-        self.rnn_hidden_size = 16 # > question_size and answer_size
-        #self.rnn_hidden_size = 64 # > question_size and answer_size
+        #self.rnn_hidden_size = 16 # > question_size and answer_size
+        self.rnn_hidden_size = 64 # > question_size and answer_size
         
         self.key_size = self.query_size   = 12
         self.value_size   = 16  # 24+2+2 = key_size + value_size
