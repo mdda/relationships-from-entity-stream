@@ -36,5 +36,11 @@
 # Epoch  20 (end) :   Test set: Relation accuracy: 45% | Non-relation accuracy: 51%
 
 
+# Test set after epoch  1 : Relation accuracy: 34% | Non-relation accuracy: 16%
+# Test set after epoch  2 : Relation accuracy: 35% | Non-relation accuracy: 33%
+# Test set after epoch  5 : Relation accuracy: 43% | Non-relation accuracy: 50%
+# Test set after epoch 10 : Relation accuracy: 43% | Non-relation accuracy: 51%
+# Test set after epoch 20 : Relation accuracy: 43% | Non-relation accuracy: 51%
+#  76secs per epoch on Titax X (Maxwell)
 
 
