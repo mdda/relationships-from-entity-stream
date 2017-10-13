@@ -112,13 +112,14 @@ def train(epoch, rel, norel):
         accuracy_norel = model.train_(input_img, input_qst, label)
 
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {} [{}/{} ({:.0f}%)] Relations accuracy: {:.0f}% | Non-relations accuracy: {:.0f}%'.format(
+            print('Train Epoch: {:2d} [{:6d}/{:6d} ({:3.0f}%)] Relations accuracy: {:3.0f}% | Non-relations accuracy: {:3.0f}%'.format(
                     epoch, batch_idx * bs * 2, 
                     len(rel[0]) * 2, 
                     100. * batch_idx * bs/ len(rel[0]), 
                     accuracy_rel, accuracy_norel
                  ))
-    print("  Epoch training elapsed time : %.0fsecs" % (datetime.datetime.now()-t0).total_seconds())
+    epoch_duration = (datetime.datetime.now()-t0).total_seconds()
+    print("  This epoch elapsed time : %.0fsecs, remaining : %.0fmins" % (epoch_duration, (args.epochs-epoch)*epoch_duration/60.))
                                                                                                                            
             
 
@@ -142,8 +143,8 @@ def test(epoch, rel, norel):
 
     accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
     accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
-    print('\n  Test set: Relation accuracy: {:.0f}% | Non-relation accuracy: {:.0f}%\n'.format(
-        accuracy_rel, accuracy_norel))
+    print('\n  Test set after epoch {:2d} : Relation accuracy: {:.0f}% | Non-relation accuracy: {:.0f}%\n'.format(
+                epoch, accuracy_rel, accuracy_norel))
 
     
 def load_data():
