@@ -171,7 +171,10 @@ Two major layers :
 
 
 Ideas:
-  Add a 'zeroes' or 'ones' key/value 'entity' to allow for non-attentive states
+  DONE : Add a 'zeroes'/'zeroes' key/value 'entity' to allow for non-attentive states
+  DONE : Add second RNN layer in initial stream formation
+  Add a 'trainable'/'zeroes' key/value 'entity' to allow for non-attentive states
+  
   Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
   Teach each question type in turn, building up the curriculum
 

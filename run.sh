@@ -45,10 +45,10 @@
 
 
 # Additional rnn layer to create stream queries :  model/training_RFS-02-2rnn-layers-in-stream.log
-# Test set after epoch  1 : Relation accuracy: 33% | Non-relation accuracy: 16%
-# Test set after epoch  2 : Relation accuracy: 34% | Non-relation accuracy: 17%
-# Test set after epoch  5 : Relation accuracy: 43% | Non-relation accuracy: 51%
-# Test set after epoch 10 : Relation accuracy: 44% | Non-relation accuracy: 54%
+#  Test set after epoch  1 : Relation accuracy: 33% | Non-relation accuracy: 16%
+#  Test set after epoch  2 : Relation accuracy: 34% | Non-relation accuracy: 17%
+#  Test set after epoch  5 : Relation accuracy: 43% | Non-relation accuracy: 51%
+#  Test set after epoch 10 : Relation accuracy: 44% | Non-relation accuracy: 54%
 #  Test set after epoch 15 : Relation accuracy: 44% | Non-relation accuracy: 55%
 #  Test set after epoch 16 : Relation accuracy: 45% | Non-relation accuracy: 55%
 #  Test set after epoch 17 : Relation accuracy: 46% | Non-relation accuracy: 55%
@@ -56,11 +56,17 @@
 #  Test set after epoch 19 : Relation accuracy: 49% | Non-relation accuracy: 56%
 #  Test set after epoch 20 : Relation accuracy: 50% | Non-relation accuracy: 56%
 
-# More :: python -u main.py --model=RFS     --epochs=20 --resume epoch_RFS_20.pth | tee --append model/training_RFS.log
+# More :: python -u main.py --model=RFS     --epochs=20 --resume epoch_RFS_20.pth | tee --append model/training_RFS-02-2rnn-layers-in-stream.log
 
 #  Test set after epoch 25 : Relation accuracy: 58% | Non-relation accuracy: 57%
 #  Test set after epoch 30 : Relation accuracy: 63% | Non-relation accuracy: 58%
 #  Test set after epoch 35 : Relation accuracy: 67% | Non-relation accuracy: 58%
 #  Test set after epoch 40 : Relation accuracy: 68% | Non-relation accuracy: 57%
 
+# More :: python -u main.py --model=RFS     --epochs=10 --resume epoch_RFS_20.pth | tee --append model/training_RFS-02-2rnn-layers-in-stream.log
 
+#  Test set after epoch  5 : Relation accuracy: 70% | Non-relation accuracy: 59%
+#  Test set after epoch 10 : Relation accuracy: 71% | Non-relation accuracy: 58%
+
+
+# python -u main.py --model=RFS --epochs=20  | tee  model/training_RFS-key-is-param.log

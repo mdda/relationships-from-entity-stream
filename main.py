@@ -184,6 +184,7 @@ except:
 
 if args.resume:
     filename = os.path.join(model_dirs, args.resume)
+    print(filename)
     if os.path.isfile(filename):
         print('==> loading checkpoint {}'.format(filename))
         checkpoint = torch.load(filename)
