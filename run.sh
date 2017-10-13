@@ -65,8 +65,21 @@
 
 # More :: python -u main.py --model=RFS     --epochs=10 --resume epoch_RFS_20.pth | tee --append model/training_RFS-02-2rnn-layers-in-stream.log
 
-#  Test set after epoch  5 : Relation accuracy: 70% | Non-relation accuracy: 59%
-#  Test set after epoch 10 : Relation accuracy: 71% | Non-relation accuracy: 58%
+#  Test set after epoch 45 : Relation accuracy: 70% | Non-relation accuracy: 59%
+#  Test set after epoch 50 : Relation accuracy: 71% | Non-relation accuracy: 58%
 
 
 # python -u main.py --model=RFS --epochs=20  | tee  model/training_RFS-key-is-param.log
+
+
+
+# Run with higher learning rates initially:
+
+python -u main.py --model=RFS --epochs=20 --lr=0.001  | tee model/training_RFS-key-is-param.log
+#  Test set after epoch 20 : Relation accuracy: 41% | Non-relation accuracy: 81%
+
+python -u main.py --model=RFS --epochs=30 --lr=0.0003 --resume epoch_RFS_20.pth | tee --append  model/training_RFS-key-is-param.log
+#  Test set after epoch 50 : Relation accuracy: 80% | Non-relation accuracy: 98%
+
+python -u main.py --model=RFS --epochs=150 --lr=0.0001 --resume epoch_RFS_30.pth | tee --append  model/training_RFS-key-is-param.log
+# 220mins expected: ~<4hr
