@@ -44,6 +44,7 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 torch.manual_seed(args.seed)
 if args.cuda:
+    print("Running with GPU enabled")
     torch.cuda.manual_seed(args.seed)
 
 if args.model=='RFS': 

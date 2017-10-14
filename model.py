@@ -435,7 +435,8 @@ class RFS(BasicModel):
         #print("qst.size() : ", qst.size())  # (32,11)
 
         #seq_len=8
-        seq_len=2
+        #seq_len=2 # Works super-well
+        seq_len=1
         
         #ent_stream_rnn1_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
         #ent_stream_rnn1_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
