@@ -252,7 +252,8 @@ def sample_gumbel(input):
 def gumbel_softmax_sample(input, temperature=0.5):
     noise = sample_gumbel(input)
     x = (input + noise) / temperature
-    x = F.log_softmax(x)
+    #x = F.log_softmax(x)
+    x = F.softmax(x)
     return x.view_as(input)
 
 
@@ -260,15 +261,23 @@ class Harden(nn.Module):
     # https://discuss.pytorch.org/t/cannot-override-torch-round-after-upgrading-to-the-latest-pytorch-version/6396 ?
     def __init__(self, args):
         super(Harden, self).__init__()
-        self.y_onehot = torch.FloatTensor(args.batch_size, args.input_len)
+        #self.y_onehot = torch.FloatTensor(args.batch_size, args.input_len)
+        #self.batch_size = args.batch_size
         
     # https://discuss.pytorch.org/t/convert-int-into-one-hot-format/507/4
     # https://discuss.pytorch.org/t/creating-one-hot-vector-from-indices-given-as-a-tensor/2171/3
     # https://github.com/mrdrozdov-github/pytorch-extras#one_hot
     def forward(self, vec):
-        self.y_onehot.zero_()
-        self.y_onehot.scatter_(1, vec, 1)      
-        return 
+        #self.y_onehot.zero_()
+        #self.y_onehot.scatter_(1, vec, 1)      
+        #return self.y_onehot
+        
+        y_onehot = torch.FloatTensor( vec.size() )
+        if vec.is_cuda:
+          y_onehot = y_onehot.cuda()
+        y_onehot.zero_()
+        y_onehot.scatter_(1, vec, 1)
+        return y_onehot
 
     def backward(self, grads):
         return grads  # This is an identity pass-through
@@ -435,9 +444,10 @@ class RFS(BasicModel):
         #print("qst.size() : ", qst.size())  # (32,11)
 
         #seq_len=8
-        #seq_len=2 # Works super-well
+        seq_len=2 # Works super-well
         #seq_len=1
-        seq_len=2 # Try with Gunbel
+        
+        #seq_len=2 # Try with Gunbel --- meh
         
         #ent_stream_rnn1_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
         #ent_stream_rnn1_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
@@ -469,13 +479,14 @@ class RFS(BasicModel):
           #print("ent_similarity.size() : ", ent_similarity.size())  # (32,26,1)
 
 
-          if False:
-            # Softmax to get the weights
-            ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )
-            
           if True:
+            # Softmax to get the weights
+            #ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )  #WORKED
+            ent_weights = F.softmax( torch.squeeze( ent_similarity) )
+            
+          if False:
             # Gumbel-Softmax to get the weights:
-            ent_weights = gumbel_softmax_sample( torch.squeeze( ent_similarity), temperature=0.5 )
+            ent_weights = gumbel_softmax_sample( torch.squeeze( ent_similarity), temperature=0.2 )
             
           #print("ent_weights.size() : ", ent_weights.size())  # (32,26)
           #print("ent_weights.unsqueeze(2).size() : ", torch.unsqueeze(ent_weights,2).size())  # (32,26,1)  

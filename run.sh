@@ -75,24 +75,24 @@
 
 # Run with higher learning rates initially:
 
-python -u main.py --model=RFS --epochs=20 --lr=0.001  | tee model/training_RFS-key-is-param.log
+#python -u main.py --model=RFS --epochs=20 --lr=0.001  | tee model/training_RFS-key-is-param.log
 #  Test set after epoch 20 : Relation accuracy: 41% | Non-relation accuracy: 81%
 
-python -u main.py --model=RFS --epochs=30 --lr=0.0003 --resume epoch_RFS_20.pth | tee --append  model/training_RFS-key-is-param.log
+#python -u main.py --model=RFS --epochs=30 --lr=0.0003 --resume epoch_RFS_20.pth | tee --append  model/training_RFS-key-is-param.log
 #  Test set after epoch 50 : Relation accuracy: 80% | Non-relation accuracy: 98%
 
-python -u main.py --model=RFS --epochs=150 --lr=0.0001 --resume epoch_RFS_30.pth | tee --append  model/training_RFS-key-is-param.log
+#python -u main.py --model=RFS --epochs=150 --lr=0.0001 --resume epoch_RFS_30.pth | tee --append  model/training_RFS-key-is-param.log
 # 220mins expected: ~<4hr
 
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --template model/{}_2item-span_{:03d}.pth | tee --append logs/RFS_2item-span.log
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --template model/{}_2item-span_{:03d}.pth | tee --append logs/RFS_2item-span.log
 (env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span.log 
 #  Test set after epoch  1 : Relation accuracy: 54% | Non-relation accuracy: 57%
 #  Test set after epoch  2 : Relation accuracy: 73% | Non-relation accuracy: 60%
 #  Test set after epoch  5 : Relation accuracy: 73% | Non-relation accuracy: 63%
 #  Test set after epoch 10 : Relation accuracy: 73% | Non-relation accuracy: 61%
 #  Test set after epoch 20 : Relation accuracy: 80% | Non-relation accuracy: 86%
-#  Test set after epoch 30 : Relation accuracy: 93% | Non-relation accuracy: 99%
+#  Test set after epoch 30 : Relation accuracy: 93% | Non-relation accuracy: 99%  !!
 #  Test set after epoch 40 : Relation accuracy: 94% | Non-relation accuracy: 99%
 #  Test set after epoch 50 : Relation accuracy: 92% | Non-relation accuracy: 99%
 
@@ -107,7 +107,7 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 30 : Relation accuracy: 78% | Non-relation accuracy: 78%
 
 
-python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span-gumbel_{:03d}.pth | tee --append logs/RFS_1item-span-gumbel.log
+#python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span-gumbel_{:03d}.pth | tee --append logs/RFS_1item-span-gumbel.log
 # Just see what Gumbel does in the place of softmax
 # (env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_1item-span-gumbel.log 
 #  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 52%
@@ -116,4 +116,34 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 10 : Relation accuracy: 69% | Non-relation accuracy: 60%
 #  Test set after epoch 20 : Relation accuracy: 71% | Non-relation accuracy: 60%
 #  Test set after epoch 30 : Relation accuracy: 70% | Non-relation accuracy: 59%
+
+(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-gumbel.log 
+#  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 51%
+#  Test set after epoch  2 : Relation accuracy: 55% | Non-relation accuracy: 56%
+#  Test set after epoch  5 : Relation accuracy: 70% | Non-relation accuracy: 58%
+#  Test set after epoch 10 : Relation accuracy: 71% | Non-relation accuracy: 60%
+#  Test set after epoch 20 : Relation accuracy: 47% | Non-relation accuracy: 57%
+#  Test set after epoch 30 : Relation accuracy: 71% | Non-relation accuracy: 60%
+
+#  Fix with log_softmax() -> softmax()    # Actually seems worse...
+#  Test set after epoch  1 : Relation accuracy: 46% | Non-relation accuracy: 50%
+#  Test set after epoch  2 : Relation accuracy: 50% | Non-relation accuracy: 54%
+#  Test set after epoch  5 : Relation accuracy: 56% | Non-relation accuracy: 56%
+#  Test set after epoch 10 : Relation accuracy: 55% | Non-relation accuracy: 56%
+#  Test set after epoch 20 : Relation accuracy: 59% | Non-relation accuracy: 56%
+#  Test set after epoch 30 : Relation accuracy: 59% | Non-relation accuracy: 56%
+
+
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --seed 10 --template model/{}_2item-span-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-seed10.log
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-seed10.log   # WORKS (better) with different seed
+#  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 51%
+#  Test set after epoch  2 : Relation accuracy: 55% | Non-relation accuracy: 58%
+#  Test set after epoch  5 : Relation accuracy: 73% | Non-relation accuracy: 86%
+#  Test set after epoch 10 : Relation accuracy: 84% | Non-relation accuracy: 99%   
+#  Test set after epoch 20 : Relation accuracy: 93% | Non-relation accuracy: 100%   !!
+#  Test set after epoch 30 : Relation accuracy: 92% | Non-relation accuracy: 100%
+#  Test set after epoch 40 : Relation accuracy: 93% | Non-relation accuracy: 100%
+#  Test set after epoch 50 : Relation accuracy: 93% | Non-relation accuracy: 100%
+
+
 
