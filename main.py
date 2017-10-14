@@ -21,7 +21,7 @@ from model import RN, CNN_MLP, RFS
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Relations-from-Stream sort-of-CLVR Example')
 parser.add_argument('--model', type=str, choices=['RN', 'CNN_MLP', 'RFS'], default='RN', 
-                    help='resume from model stored')
+                    help='model type')
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
 parser.add_argument('--epochs', type=int, default=20, metavar='N',
@@ -34,8 +34,10 @@ parser.add_argument('--seed', type=int, default=1, metavar='S',
                     help='random seed (default: 1)')
 parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                     help='how many batches to wait before logging training status')
-parser.add_argument('--resume', type=str,
-                    help='resume from model stored')
+parser.add_argument('--resume', type=int, default=0,
+                    help='resume from model epoch stored')
+parser.add_argument('--template', type=str, default='{}_2item-span_{:03d}.pth',  # default='%%s-%%03d.pkl',  
+                    help='template for model name, expecting model type and integer epoch')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -50,9 +52,6 @@ elif args.model=='CNN_MLP':
   model = CNN_MLP(args)
 else:
   model = RN(args)
-
-# For saving the checkpoints
-model_dirs = './model'
 
 # For loading the data (possibly a symlink to relational-networks/data)
 data_dirs = './data'
@@ -177,13 +176,8 @@ def load_data():
 
 rel_train, rel_test, norel_train, norel_test = load_data()
 
-try:
-    os.makedirs(model_dirs)
-except:
-    print('directory {} already exists'.format(model_dirs))
-
-if args.resume:
-    filename = os.path.join(model_dirs, args.resume)
+if args.resume>0:
+    filename = args.template % (args.model, args.resume, )
     print(filename)
     if os.path.isfile(filename):
         print('==> loading checkpoint {}'.format(filename))
@@ -191,7 +185,7 @@ if args.resume:
         model.load_state_dict(checkpoint)
         print('==> loaded checkpoint {}'.format(filename))
 
-for epoch in range(1, args.epochs + 1):
+for epoch in range(args.resume+1, args.resume+args.epochs + 1):
     train(epoch, rel_train, norel_train)
     test(epoch, rel_test, norel_test)
-    model.save_model(epoch)
+    model.save_model(args.template, epoch)

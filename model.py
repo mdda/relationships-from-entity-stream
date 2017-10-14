@@ -80,8 +80,9 @@ class BasicModel(nn.Module):
         accuracy = correct * 100. / len(label)
         return accuracy
 
-    def save_model(self, epoch):
-        torch.save(self.state_dict(), 'model/epoch_{}_{:02d}.pth'.format(self.name, epoch))
+    def save_model(self, save_template, epoch):
+        #torch.save(self.state_dict(), 'model/epoch_{}_{:02d}.pth'.format(self.name, epoch))
+        torch.save(self.state_dict(), save_template.format(self.name, epoch))
 
 
 class RN(BasicModel):
@@ -433,7 +434,8 @@ class RFS(BasicModel):
         
         #print("qst.size() : ", qst.size())  # (32,11)
 
-        seq_len=8
+        #seq_len=8
+        seq_len=2
         
         #ent_stream_rnn1_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
         #ent_stream_rnn1_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)

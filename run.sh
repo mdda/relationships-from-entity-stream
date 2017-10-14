@@ -83,3 +83,6 @@ python -u main.py --model=RFS --epochs=30 --lr=0.0003 --resume epoch_RFS_20.pth 
 
 python -u main.py --model=RFS --epochs=150 --lr=0.0001 --resume epoch_RFS_30.pth | tee --append  model/training_RFS-key-is-param.log
 # 220mins expected: ~<4hr
+
+
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --template model/{}_2item-span_{:03d}.pth | tee --append logs/RFS_2item-span.log
