@@ -468,11 +468,11 @@ class RFS(BasicModel):
           #print("ent_similarity.size() : ", ent_similarity.size())  # (32,26,1)
 
 
-          if True:
+          if False:
             # Softmax to get the weights
             ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )
             
-          if False:
+          if True:
             # Gumbel-Softmax to get the weights:
             ent_weights = gumbel_softmax_sample( torch.squeeze( ent_similarity), temperature=0.5 )
             

@@ -105,3 +105,15 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 10 : Relation accuracy: 50% | Non-relation accuracy: 77%
 #  Test set after epoch 20 : Relation accuracy: 75% | Non-relation accuracy: 78%
 #  Test set after epoch 30 : Relation accuracy: 78% | Non-relation accuracy: 78%
+
+
+python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span-gumbel_{:03d}.pth | tee --append logs/RFS_1item-span-gumbel.log
+# Just see what Gumbel does in the place of softmax
+# (env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_1item-span-gumbel.log 
+#  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 52%
+#  Test set after epoch  2 : Relation accuracy: 58% | Non-relation accuracy: 54%
+#  Test set after epoch  5 : Relation accuracy: 67% | Non-relation accuracy: 58%
+#  Test set after epoch 10 : Relation accuracy: 69% | Non-relation accuracy: 60%
+#  Test set after epoch 20 : Relation accuracy: 71% | Non-relation accuracy: 60%
+#  Test set after epoch 30 : Relation accuracy: 70% | Non-relation accuracy: 59%
+
