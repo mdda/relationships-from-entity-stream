@@ -39,6 +39,11 @@ parser.add_argument('--resume', type=int, default=0,
 parser.add_argument('--template', type=str, default='{}_2item-span_{:03d}.pth',  # default='%%s-%%03d.pkl',  
                     help='template for model name, expecting model type and integer epoch')
 
+parser.add_argument('--gumbel_temp', type=float, default=-1,
+                    help='Gumbel temperature (if >0)')
+parser.add_argument('--gumbel_hurdle', type=float, default=0,
+                    help='Multiply temperature by 90%% if training is over this hurdle')
+
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
@@ -103,6 +108,7 @@ def train(epoch, rel, norel):
     norel = cvt_data_axis(norel)
 
     t0 = datetime.datetime.now()
+    # total_accuracy: ToDo
     
     for batch_idx in range(len(rel[0]) // bs):
         tensor_data(rel, batch_idx)
@@ -118,6 +124,7 @@ def train(epoch, rel, norel):
                     100. * batch_idx * bs/ len(rel[0]), 
                     accuracy_rel, accuracy_norel
                  ))
+                 
     epoch_duration = (datetime.datetime.now()-t0).total_seconds()
     print("  This epoch elapsed time : %.0fsecs, remaining : %.0fmins" % (epoch_duration, (args.epochs-epoch)*epoch_duration/60.))
                                                                                                                            
