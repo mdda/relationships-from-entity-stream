@@ -134,7 +134,8 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 30 : Relation accuracy: 59% | Non-relation accuracy: 56%
 
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --seed 10 --template model/{}_2item-span-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-seed10.log
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --seed 10 --template model/{}_2item-span-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-seed10.log
+# hidden_size=32 (as before)
 #(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-seed10.log   # WORKS (better) with different seed
 #  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 55% | Non-relation accuracy: 58%
@@ -145,5 +146,18 @@ python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --seed 10 --temp
 #  Test set after epoch 40 : Relation accuracy: 93% | Non-relation accuracy: 100%
 #  Test set after epoch 50 : Relation accuracy: 93% | Non-relation accuracy: 100%
 
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --seed 10 --template model/{}_2item-span-hidden64-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-hidden64-seed10.log
+# hidden_size=64
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-hidden64-seed10.log 
+#  Test set after epoch  1 : Relation accuracy: 45% | Non-relation accuracy: 51%
+#  Test set after epoch  2 : Relation accuracy: 43% | Non-relation accuracy: 52%
+#  Test set after epoch  5 : Relation accuracy: 67% | Non-relation accuracy: 60%
+#  Test set after epoch 10 : Relation accuracy: 73% | Non-relation accuracy: 61%
+#  Test set after epoch 20 : Relation accuracy: 74% | Non-relation accuracy: 61%
+#  Test set after epoch 30 : Relation accuracy: 74% | Non-relation accuracy: 61%
+#  Test set after epoch 40 : Relation accuracy: 82% | Non-relation accuracy: 98%
+#  Test set after epoch 50 : Relation accuracy: 90% | Non-relation accuracy: 99%    !!
 
 
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --process_coords --seed 10 --template model/{}_2item-span-process_coords-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-process_coords.log
+# hidden_size=32.  But add coords to CNN output and do 2 further layers of 1x1 covolutions

@@ -134,8 +134,9 @@ class RN(BasicModel):
         mb = x.size()[0]
         n_channels = x.size()[1]
         d = x.size()[2]
-        # x_flat = (64 x 25 x 24)
+        
         x_flat = x.view(mb,n_channels,d*d).permute(0,2,1)
+        # x_flat = (64 x 25 x 24)
         
         # add coordinates
         x_flat = torch.cat([x_flat, self.coord_tensor],2)
@@ -318,7 +319,7 @@ class RFS(BasicModel):
         self.conv = ConvInputModel()  
         # output is 24 channels in a 5x5 grid
 
-        
+
         coord_oi = torch.FloatTensor(args.batch_size, 2)
         coord_oj = torch.FloatTensor(args.batch_size, 2)
         if args.cuda:
@@ -346,11 +347,19 @@ class RFS(BasicModel):
         self.answer_size     = 10
         
         #self.rnn_hidden_size = 16 # > question_size and answer_size
-        self.rnn_hidden_size = 32 # > question_size and answer_size
-        #self.rnn_hidden_size = 64 # > question_size and answer_size
+        self.rnn_hidden_size = 32 # > question_size and answer_size   WORKS
+        #self.rnn_hidden_size = 64 # > question_size and answer_size   WORKS
         
         self.key_size = self.query_size   = 12
         self.value_size   = 16  # 24+2+2 = key_size + value_size
+
+        self.process_coords = args.process_coords
+        if self.process_coords:
+            self.conv1 = nn.Conv2d(24+2, 24, kernel_size=1, padding=0)
+            self.batchNorm1 = nn.BatchNorm2d(24)
+            self.conv2 = nn.Conv2d(24, self.key_size+self.value_size, kernel_size=1, padding=0)
+            self.batchNorm2 = nn.BatchNorm2d(self.key_size+self.value_size)
+
 
         k_blank = torch.randn( (1, 1, self.key_size) )
         if args.cuda:
@@ -415,22 +424,51 @@ class RFS(BasicModel):
         
         """g"""
         batch_size = x.size()[0]  # minibatch
-        n_channels = x.size()[1]  # output features of CNN
+        n_channels = x.size()[1]  # output features of CNN  (24 normally or 28 if process_coords)
         d = x.size()[2]           # grid size over image
-        
-        # x_flat = (64 x 25 x 24)
-        x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
-        
-        # Split the x_flat into (keys) and (values)
-        ks_nocoords = x_flat.narrow(2, 0, self.key_size-2)
-        vs_nocoords = x_flat.narrow(2, self.key_size-2, self.value_size-2)
-        
-        # add coordinates
-        ks_image = torch.cat([ks_nocoords, self.coord_tensor], 2)
-        vs_image = torch.cat([vs_nocoords, self.coord_tensor], 2)
 
-        #print("ks_image.size() : ", ks_image.size())  # (32,25,12)
-        #print("vs_image.size() : ", vs_image.size())  # (32,25,16)
+        if self.process_coords:
+            # Add in the coordinates here...
+            #print("x_from-cnn.size(): ", x.size()) 
+            x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
+            #print("x_flat.size(): ", x_flat.size()) 
+            
+            #print("coord_tensor.size(): ", self.coord_tensor.size()) 
+
+            x_flat_plus = torch.cat([x_flat, self.coord_tensor], 2)
+            #print("x_flat_plus.size(): ", x_flat_plus.size()) 
+
+            x = x_flat_plus.permute(0,2,1).contiguous().view(batch_size, n_channels+2, d, d)
+            
+            x = self.conv1(x)
+            x = F.relu(x)
+            x = self.batchNorm1(x)
+            x = self.conv2(x)
+            x = F.relu(x)
+            x = self.batchNorm2(x)
+            
+            #print("x_after-1x1s.size(): ", x.size()) 
+            
+            x_flat = x.view(batch_size, self.key_size+self.value_size, d*d).permute(0,2,1)
+            # x_flat = (64 x 25 x 28)
+            
+            ks_image = x_flat.narrow(2, 0, self.key_size)
+            vs_image = x_flat.narrow(2, self.key_size, self.value_size)
+          
+        else:
+            x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
+            # x_flat = (64 x 25 x 24)
+            
+            ks_nocoords = x_flat.narrow(2, 0, self.key_size-2)
+            vs_nocoords = x_flat.narrow(2, self.key_size-2, self.value_size-2)
+            
+            # add coordinates (since these haven't been included yet)
+            ks_image = torch.cat([ks_nocoords, self.coord_tensor], 2)
+            vs_image = torch.cat([vs_nocoords, self.coord_tensor], 2)
+
+            #print("ks_image.size() : ", ks_image.size())  # (32,25,12)
+            #print("vs_image.size() : ", vs_image.size())  # (32,25,16)
+
         
         # add the 'end of choices' element
         #print("self.k_blank.size() : ", self.k_blank.size())  # (1,1,12)

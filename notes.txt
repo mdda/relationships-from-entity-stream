@@ -173,11 +173,20 @@ Two major layers :
 Ideas:
   DONE : Add a 'zeroes'/'zeroes' key/value 'entity' to allow for non-attentive states
   DONE : Add second RNN layer in initial stream formation
-  Add a 'trainable'/'zeroes' key/value 'entity' to allow for non-attentive states
+  DONE : Add a 'trainable'/'zeroes' key/value 'entity' to allow for non-attentive states
   
-  Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
   Teach each question type in turn, building up the curriculum
 
+  Investigate processing
+    In first batch, find 1 example of each question type
+    Have a 'debug mode' that saves the internal state(s) during the processing of a batch
+    Look at the stats of individual samples within the batch 
+      Check on attention thing
+
+  Postional information processing:
+    EITHER : Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
+    OR     : Add 1-d convolution layers on top of image to allow for more 'integration' of the coordinates
+  
 
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series

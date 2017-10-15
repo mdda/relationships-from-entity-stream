@@ -39,6 +39,9 @@ parser.add_argument('--resume', type=int, default=0,
 parser.add_argument('--template', type=str, default='{}_2item-span_{:03d}.pth',  # default='%%s-%%03d.pkl',  
                     help='template for model name, expecting model type and integer epoch')
 
+parser.add_argument('--process_coords', action='store_true', default=False,
+                    help='Process the coordinates with 1x1 covolutions, instead of just concatting')
+
 parser.add_argument('--gumbel_temp', type=float, default=-1,
                     help='Gumbel temperature (if >0)')
 parser.add_argument('--gumbel_hurdle', type=float, default=0,
