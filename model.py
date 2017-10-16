@@ -355,9 +355,12 @@ class RFS(BasicModel):
 
         self.process_coords = args.process_coords
         if self.process_coords:
-            self.conv1 = nn.Conv2d(24+2, 24, kernel_size=1, padding=0)
+            self.coord_tensor_permuted = self.coord_tensor.permute(0,2,1)
+            
+            # These are 1d convs (since only 1x1 kernels anyway, and better shapes for below...)
+            self.conv1 = nn.Conv1d(24+2, 24, kernel_size=1, padding=0)
             self.batchNorm1 = nn.BatchNorm2d(24)
-            self.conv2 = nn.Conv2d(24, self.key_size+self.value_size, kernel_size=1, padding=0)
+            self.conv2 = nn.Conv1d(24, self.key_size+self.value_size, kernel_size=1, padding=0)
             self.batchNorm2 = nn.BatchNorm2d(self.key_size+self.value_size)
 
 
@@ -429,25 +432,27 @@ class RFS(BasicModel):
 
         if self.process_coords:
             # Add in the coordinates here...
-            #print("x_from-cnn.size(): ", x.size()) 
-            x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
-            #print("x_flat.size(): ", x_flat.size()) 
+            #print("process_coords : x_from-cnn.size(): ", x.size()) 
+            
+            x_flatter = x.view(batch_size, n_channels, d*d)
+            #print("x_flatter.size(): ", x_flatter.size()) 
             
             #print("coord_tensor.size(): ", self.coord_tensor.size()) 
+            #print("coord_tensor.permuted.size(): ", self.coord_tensor.permute(0,2,1).size()) 
+            #print("coord_tensor_permuted.size(): ", self.coord_tensor_permuted.size()) 
 
-            x_flat_plus = torch.cat([x_flat, self.coord_tensor], 2)
-            #print("x_flat_plus.size(): ", x_flat_plus.size()) 
-
-            x = x_flat_plus.permute(0,2,1).contiguous().view(batch_size, n_channels+2, d, d)
+            #x_plus = torch.cat([x_flatter, self.coord_tensor.permute(0,2,1) ], 1)
+            x_plus = torch.cat([x_flatter, self.coord_tensor_permuted ], 1)
+            #print("x_plus.size(): ", x_plus.size()) 
             
-            x = self.conv1(x)
+            x = self.conv1(x_plus)
             x = F.relu(x)
             x = self.batchNorm1(x)
             x = self.conv2(x)
             x = F.relu(x)
             x = self.batchNorm2(x)
             
-            #print("x_after-1x1s.size(): ", x.size()) 
+            #print("x_after-1x1s.size(): ", x.size())   # 32,28,25
             
             x_flat = x.view(batch_size, self.key_size+self.value_size, d*d).permute(0,2,1)
             # x_flat = (64 x 25 x 28)
@@ -456,6 +461,7 @@ class RFS(BasicModel):
             vs_image = x_flat.narrow(2, self.key_size, self.value_size)
           
         else:
+            print("Just concat coordinates : x_from-cnn.size(): ", x.size()) 
             x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
             # x_flat = (64 x 25 x 24)
             
