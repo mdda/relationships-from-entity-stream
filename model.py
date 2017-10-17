@@ -310,6 +310,7 @@ class Harden(nn.Module):
 class RFS(BasicModel):
     def __init__(self, args):
         super(RFS, self).__init__(args, 'RFS')
+        self.debug = args.debug
         
         self.conv = ConvInputModel()  
         # output is 24 channels in a 5x5 grid
@@ -485,7 +486,8 @@ class RFS(BasicModel):
 
 
         #seq_len=8
-        seq_len=2 # Works super-well
+        seq_len=4 
+        #seq_len=2 # Works super-well
         #seq_len=1
         
         #seq_len=2 # Try with Gunbel --- meh
@@ -498,16 +500,21 @@ class RFS(BasicModel):
         ent_stream_rnn1_input  = self.ent_stream_rnn1_start.expand(  (batch_size, self.value_size) )
         ent_stream_rnn2_hidden = self.ent_stream_rnn2_hidden.expand( (batch_size, self.rnn_hidden_size) )
         
-        stream_values = [] # Will be filled by RNN and attention process
+        stream_logits, stream_values = [],[] # Will be filled by RNN and attention process
         for i in range(seq_len):
           #print("ent_stream_rnn_input.size()  : ", ent_stream_rnn_input.size())   # (32,16)
           #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
           ent_stream_rnn1_hidden = self.ent_stream_rnn1(ent_stream_rnn1_input, ent_stream_rnn1_hidden)
 
           ent_stream_rnn2_hidden = self.ent_stream_rnn2(ent_stream_rnn1_hidden, ent_stream_rnn2_hidden)
+
+          ent_stream_logits = ent_stream_rnn2_hidden
+
+          if self.debug:
+            stream_logits.append( ent_stream_logits )
           
           # Convert the ent_stream hidden layer to a query
-          qs = self.stream_rnn_to_query( ent_stream_rnn2_hidden )
+          qs = self.stream_rnn_to_query( ent_stream_logits )
           #print("qs.size() : ", qs.size())  # (32,12)
 
           #print("qs.unsqueeze(2).size() : ", torch.unsqueeze(qs, 2).size())  # (32,12,1)
@@ -559,8 +566,13 @@ class RFS(BasicModel):
         # Final answer is in stream_answer_hidden (final value)
         #ans = stream_answer_hidden.narrow(1, 0, self.answer_size)  # No: Let's do a final linear on it...
         #print("ans.size() : ", ans.size())  # (32,10)
-        
+
         ans = self.stream_answer_to_output( stream_answer_hidden )
+
+        if self.debug:
+          self.stream_logits = stream_logits
+          self.stream_values = stream_values
+          self.ans_logits = ans
         
         return F.log_softmax(ans)  # log_softmax is what's expected
 

@@ -50,6 +50,9 @@ parser.add_argument('--process_coords', action='store_true', default=False,
 #parser.add_argument('--gumbel_hurdle', type=float, default=0,
 #                    help='Multiply temperature by 90%% if training is over this hurdle')
 
+parser.add_argument('--debug', action='store_true', default=False,
+                    help='Stores interim results in the model for external examination')
+
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
