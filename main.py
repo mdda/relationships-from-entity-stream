@@ -39,13 +39,16 @@ parser.add_argument('--resume', type=int, default=0,
 parser.add_argument('--template', type=str, default='{}_2item-span_{:03d}.pth',  # default='%%s-%%03d.pkl',  
                     help='template for model name, expecting model type and integer epoch')
 
+parser.add_argument('--rnn_hidden_size', type=int, default=32, 
+                    help='size of RNN hidden vectors (default: 32)')
+
 parser.add_argument('--process_coords', action='store_true', default=False,
                     help='Process the coordinates with 1x1 covolutions, instead of just concatting')
 
-parser.add_argument('--gumbel_temp', type=float, default=-1,
-                    help='Gumbel temperature (if >0)')
-parser.add_argument('--gumbel_hurdle', type=float, default=0,
-                    help='Multiply temperature by 90%% if training is over this hurdle')
+#parser.add_argument('--gumbel_temp', type=float, default=-1,
+#                    help='Gumbel temperature (if >0)')
+#parser.add_argument('--gumbel_hurdle', type=float, default=0,
+#                    help='Multiply temperature by 90%% if training is over this hurdle')
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -111,15 +114,17 @@ def train(epoch, rel, norel):
     norel = cvt_data_axis(norel)
 
     t0 = datetime.datetime.now()
-    # total_accuracy: ToDo
+    accuracy_rels, accuracy_norels = [], []
     
     for batch_idx in range(len(rel[0]) // bs):
         tensor_data(rel, batch_idx)
         accuracy_rel = model.train_(input_img, input_qst, label)
+        accuracy_rels.append(accuracy_rel)
 
         tensor_data(norel, batch_idx)
         accuracy_norel = model.train_(input_img, input_qst, label)
-
+        accuracy_norels.append(accuracy_norel)
+        
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {:2d} [{:6d}/{:6d} ({:3.0f}%)] Relations accuracy: {:3.0f}% | Non-relations accuracy: {:3.0f}%'.format(
                     epoch, batch_idx * bs * 2, 
@@ -128,6 +133,9 @@ def train(epoch, rel, norel):
                     accuracy_rel, accuracy_norel
                  ))
                  
+    av_accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
+    av_accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
+    
     epoch_duration = (datetime.datetime.now()-t0).total_seconds()
     print("  This epoch elapsed time : %.0fsecs, remaining : %.0fmins" % (epoch_duration, (args.epochs-epoch)*epoch_duration/60.))
                                                                                                                            
@@ -142,8 +150,7 @@ def test(epoch, rel, norel):
     rel = cvt_data_axis(rel)
     norel = cvt_data_axis(norel)
 
-    accuracy_rels = []
-    accuracy_norels = []
+    accuracy_rels, accuracy_norels = [], []
     for batch_idx in range(len(rel[0]) // bs):
         tensor_data(rel, batch_idx)
         accuracy_rels.append(model.test_(input_img, input_qst, label))
@@ -151,10 +158,10 @@ def test(epoch, rel, norel):
         tensor_data(norel, batch_idx)
         accuracy_norels.append(model.test_(input_img, input_qst, label))
 
-    accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
-    accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
+    av_accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
+    av_accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
     print('\n  Test set after epoch {:2d} : Relation accuracy: {:.0f}% | Non-relation accuracy: {:.0f}%\n'.format(
-                epoch, accuracy_rel, accuracy_norel))
+                epoch, av_accuracy_rel, av_accuracy_norel))
 
     
 def load_data():
@@ -162,10 +169,8 @@ def load_data():
     filename = os.path.join(data_dirs, 'sort-of-clevr.pickle')
     with open(filename, 'rb') as f:
       train_datasets, test_datasets = pickle.load(f)
-    rel_train = []
-    rel_test = []
-    norel_train = []
-    norel_test = []
+    rel_train, norel_train = [],[]
+    rel_test, norel_test = [],[]
     print('processing data...')
 
     for img, relations, norelations in train_datasets:

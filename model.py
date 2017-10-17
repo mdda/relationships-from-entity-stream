@@ -100,25 +100,20 @@ class RN(BasicModel):
 
         self.f_fc1 = nn.Linear(256, 256)
 
-        coord_oi = torch.FloatTensor(args.batch_size, 2)
-        coord_oj = torch.FloatTensor(args.batch_size, 2)
-        if args.cuda:
-            coord_oi = coord_oi.cuda()
-            coord_oj = coord_oj.cuda()
-        self.coord_oi = Variable(coord_oi)
-        self.coord_oj = Variable(coord_oj)
 
         # prepare coord tensor
         def cvt_coord(i):
             return [(i/5-2)/2., (i%5-2)/2.]
-        
-        self.coord_tensor = torch.FloatTensor(args.batch_size, 25, 2)
-        if args.cuda:
-            self.coord_tensor = self.coord_tensor.cuda()
-        self.coord_tensor = Variable(self.coord_tensor)
+            
         np_coord_tensor = np.zeros((args.batch_size, 25, 2))
         for i in range(25):
             np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
+        
+        coord_tensor = torch.FloatTensor(args.batch_size, 25, 2)
+        if args.cuda:
+            coord_tensor = coord_tensor.cuda()
+        self.coord_tensor = Variable(coord_tensor)
+        
         self.coord_tensor.data.copy_(torch.from_numpy(np_coord_tensor))
 
 
@@ -320,48 +315,47 @@ class RFS(BasicModel):
         # output is 24 channels in a 5x5 grid
 
 
-        coord_oi = torch.FloatTensor(args.batch_size, 2)
-        coord_oj = torch.FloatTensor(args.batch_size, 2)
-        if args.cuda:
-            coord_oi = coord_oi.cuda()
-            coord_oj = coord_oj.cuda()
-        self.coord_oi = Variable(coord_oi)
-        self.coord_oj = Variable(coord_oj)
-
         # prepare coord tensor
         def cvt_coord(i):
             return [(i/5-2)/2., (i%5-2)/2.]
+            
+        np_coord_tensor = np.zeros((args.batch_size, 25, 2))
+        for i in range(25):
+            np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
         
         coord_tensor = torch.FloatTensor(args.batch_size, 25, 2)
         if args.cuda:
             coord_tensor = coord_tensor.cuda()
         self.coord_tensor = Variable(coord_tensor)
         
-        np_coord_tensor = np.zeros((args.batch_size, 25, 2))
-        for i in range(25):
-            np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
         self.coord_tensor.data.copy_(torch.from_numpy(np_coord_tensor))
 
 
         self.question_size   = 11
         self.answer_size     = 10
         
-        #self.rnn_hidden_size = 16 # > question_size and answer_size
-        self.rnn_hidden_size = 32 # > question_size and answer_size   WORKS
-        #self.rnn_hidden_size = 64 # > question_size and answer_size   WORKS
+        self.rnn_hidden_size = args.rnn_hidden_size  # must be > question_size and answer_size
         
         self.key_size = self.query_size   = 12
         self.value_size   = 16  # 24+2+2 = key_size + value_size
 
+
         self.process_coords = args.process_coords
         if self.process_coords:
+            print("Create additional 1x1 convolutions to process coords additionally per point")
             self.coord_tensor_permuted = self.coord_tensor.permute(0,2,1)
             
+            d_in, d_out = 24+2, self.key_size+self.value_size
+            #print(d_in, d_out)
+            if not (d_out == 24+2+2):
+              print("Sizing of coordinate-enhanced 5x5 images does not match additional conv layers")
+              exit(1)
+            
             # These are 1d convs (since only 1x1 kernels anyway, and better shapes for below...)
-            self.conv1 = nn.Conv1d(24+2, 24, kernel_size=1, padding=0)
-            self.batchNorm1 = nn.BatchNorm2d(24)
-            self.conv2 = nn.Conv1d(24, self.key_size+self.value_size, kernel_size=1, padding=0)
-            self.batchNorm2 = nn.BatchNorm2d(self.key_size+self.value_size)
+            self.conv1 = nn.Conv1d(d_in, d_in, kernel_size=1, padding=0)
+            self.batchNorm1 = nn.BatchNorm2d(d_in)  # d_hidden==d_in here
+            self.conv2 = nn.Conv1d(d_in, d_out, kernel_size=1, padding=0)
+            self.batchNorm2 = nn.BatchNorm2d(d_out)
 
 
         k_blank = torch.randn( (1, 1, self.key_size) )
@@ -388,6 +382,7 @@ class RFS(BasicModel):
 
         self.ent_stream_rnn1 = nn.GRUCell(self.value_size, self.rnn_hidden_size)   #input_size, hidden_size, bias=True)
 
+
         ent_stream_rnn2_hidden = torch.randn( (1, self.rnn_hidden_size) )
         if args.cuda:
             ent_stream_rnn2_hidden = ent_stream_rnn2_hidden.cuda()
@@ -406,20 +401,21 @@ class RFS(BasicModel):
             stream_question_hidden_pad = stream_question_hidden_pad.cuda()
         self.stream_question_hidden_pad = Parameter(stream_question_hidden_pad, requires_grad=True)
 
+        self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
+
         stream_answer_hidden   = torch.randn( (1, self.rnn_hidden_size) )
         if args.cuda:
             stream_answer_hidden = stream_answer_hidden.cuda()
         self.stream_answer_hidden = Parameter(stream_answer_hidden, requires_grad=True)
 
-        self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
         self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
 
         self.stream_answer_to_output = nn.Linear(self.rnn_hidden_size, self.answer_size)
         
         #for param in self.parameters():
         #    print(type(param.data), param.size())        
+        
         self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
-        #self.optimizer = optim.RMSprop(self.parameters(), lr=args.lr/10.)
 
 
     def forward(self, img, qst):
