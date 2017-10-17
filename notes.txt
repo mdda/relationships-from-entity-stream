@@ -183,9 +183,11 @@ Ideas:
     Look at the stats of individual samples within the batch 
       Check on attention thing
 
+  Once-only Retrieval : Keep a running total of the softmax inputs (starting at zero), and subtract from current query
+
   Postional information processing:
-    EITHER : Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
-    OR     : Add 1-d convolution layers on top of image to allow for more 'integration' of the coordinates
+    DONE   : Add 1-d convolution layers on top of image to allow for more 'integration' of the coordinates
+    LATER : Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
   
 
 
