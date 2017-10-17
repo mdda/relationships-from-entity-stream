@@ -177,4 +177,19 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 50 : Relation accuracy: 95% | Non-relation accuracy: 99%
 
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-again-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-again.log
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-again-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-again.log
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-again.log
+#  Test set after epoch  1 : Relation accuracy: 43% | Non-relation accuracy: 51%
+#  Test set after epoch  2 : Relation accuracy: 43% | Non-relation accuracy: 52%
+#  Test set after epoch  3 : Relation accuracy: 44% | Non-relation accuracy: 52%
+#  Test set after epoch  4 : Relation accuracy: 44% | Non-relation accuracy: 68%
+#  Test set after epoch  5 : Relation accuracy: 42% | Non-relation accuracy: 90%
+#  Test set after epoch  6 : Relation accuracy: 51% | Non-relation accuracy: 98%
+#  Test set after epoch  7 : Relation accuracy: 55% | Non-relation accuracy: 99%
+#  Test set after epoch  8 : Relation accuracy: 61% | Non-relation accuracy: 99%
+#  Test set after epoch  9 : Relation accuracy: 73% | Non-relation accuracy: 99%
+#  Test set after epoch 10 : Relation accuracy: 79% | Non-relation accuracy: 99%
+#  Test set after epoch 20 : Relation accuracy: 85% | Non-relation accuracy: 99%
+#  Test set after epoch 30 : Relation accuracy: 93% | Non-relation accuracy: 99%
+#  Test set after epoch 40 : Relation accuracy: 93% | Non-relation accuracy: 100%
+#  Test set after epoch 50 : Relation accuracy: 94% | Non-relation accuracy: 99%
