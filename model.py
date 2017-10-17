@@ -457,7 +457,7 @@ class RFS(BasicModel):
             vs_image = x_flat.narrow(2, self.key_size, self.value_size)
           
         else:
-            print("Just concat coordinates : x_from-cnn.size(): ", x.size()) 
+            #print("Just concat coordinates : x_from-cnn.size(): ", x.size()) 
             x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
             # x_flat = (64 x 25 x 24)
             
@@ -483,21 +483,19 @@ class RFS(BasicModel):
         
         #print("qst.size() : ", qst.size())  # (32,11)
 
+
         #seq_len=8
         seq_len=2 # Works super-well
         #seq_len=1
         
         #seq_len=2 # Try with Gunbel --- meh
         
-        #ent_stream_rnn1_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
-        #ent_stream_rnn1_hidden = torch.cat( [qst, self.ent_stream_rnn_hidden_pad], 1)
+
         ent_stream_rnn1_hidden = torch.cat( 
              [qst, self.ent_stream_rnn1_hidden_pad.expand( (batch_size, self.rnn_hidden_size-self.question_size) )], 1)
         #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
-        #print("ent_stream_rnn_hidden: ", ent_stream_rnn_hidden) 
         
-        ent_stream_rnn1_input = self.ent_stream_rnn1_start.expand( (batch_size, self.value_size) )
-
+        ent_stream_rnn1_input  = self.ent_stream_rnn1_start.expand(  (batch_size, self.value_size) )
         ent_stream_rnn2_hidden = self.ent_stream_rnn2_hidden.expand( (batch_size, self.rnn_hidden_size) )
         
         stream_values = [] # Will be filled by RNN and attention process
@@ -542,10 +540,9 @@ class RFS(BasicModel):
 
 
         # Now interpret the values from the stream
-        #stream_question_hidden = F.pad(qst, (0, self.rnn_hidden_size - self.question_size), "constant", 0)
-        #stream_question_hidden = torch.cat( [qst, self.stream_question_hidden_pad], 1)
         stream_question_hidden = torch.cat( 
                          [qst, self.stream_question_hidden_pad.expand( (batch_size, self.rnn_hidden_size-self.question_size) )], 1)
+                         
         stream_answer_hidden   = self.stream_answer_hidden.expand( (batch_size, self.rnn_hidden_size) )
         #print("stream_answer_hidden0", stream_answer_hidden)
         
@@ -559,12 +556,12 @@ class RFS(BasicModel):
           stream_answer_hidden   = self.stream_answer_rnn(stream_question_hidden, stream_answer_hidden)
           #print("stream_answer_hidden", stream_answer_hidden)
           
-        # Final answer is in stream_answer_hidden
-        #ans = stream_answer_hidden.narrow(1, 0, self.answer_size)
+        # Final answer is in stream_answer_hidden (final value)
+        #ans = stream_answer_hidden.narrow(1, 0, self.answer_size)  # No: Let's do a final linear on it...
         #print("ans.size() : ", ans.size())  # (32,10)
         
         ans = self.stream_answer_to_output( stream_answer_hidden )
         
-        return F.log_softmax(ans)
+        return F.log_softmax(ans)  # log_softmax is what's expected
 
 

@@ -159,7 +159,22 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 50 : Relation accuracy: 90% | Non-relation accuracy: 99%    !!
 
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --process_coords --seed 10 --template model/{}_2item-span-process_coords-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-process_coords.log
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --process_coords --seed 10 --template model/{}_2item-span-process_coords-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-process_coords.log
 # hidden_size=32.  But add coords to CNN output and do 2 further layers of 1x1 covolutions
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-process_coords.log
+#  Test set after epoch  1 : Relation accuracy: 49% | Non-relation accuracy: 51%
+#  Test set after epoch  2 : Relation accuracy: 70% | Non-relation accuracy: 56%
+#  Test set after epoch  5 : Relation accuracy: 72% | Non-relation accuracy: 63%
+#  Test set after epoch 10 : Relation accuracy: 12% | Non-relation accuracy: 48%
+#  Test set after epoch 11 : Relation accuracy: 57% | Non-relation accuracy: 66%
+#  Test set after epoch 15 : Relation accuracy: 75% | Non-relation accuracy: 68%
+#  Test set after epoch 17 : Relation accuracy: 75% | Non-relation accuracy: 74%
+#  Test set after epoch 18 : Relation accuracy: 79% | Non-relation accuracy: 82%
+#  Test set after epoch 19 : Relation accuracy: 80% | Non-relation accuracy: 96%
+#  Test set after epoch 20 : Relation accuracy: 82% | Non-relation accuracy: 97%
+#  Test set after epoch 30 : Relation accuracy: 94% | Non-relation accuracy: 99%
+#  Test set after epoch 40 : Relation accuracy: 94% | Non-relation accuracy: 99%
+#  Test set after epoch 50 : Relation accuracy: 95% | Non-relation accuracy: 99%
 
 
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-again-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-again.log
