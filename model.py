@@ -486,8 +486,8 @@ class RFS(BasicModel):
 
 
         #seq_len=8
-        seq_len=4 
-        #seq_len=2 # Works super-well
+        #seq_len=4 
+        seq_len=2 # Works super-well
         #seq_len=1
         
         #seq_len=2 # Try with Gunbel --- meh
@@ -500,7 +500,7 @@ class RFS(BasicModel):
         ent_stream_rnn1_input  = self.ent_stream_rnn1_start.expand(  (batch_size, self.value_size) )
         ent_stream_rnn2_hidden = self.ent_stream_rnn2_hidden.expand( (batch_size, self.rnn_hidden_size) )
         
-        stream_logits, stream_values = [],[] # Will be filled by RNN and attention process
+        stream_logits, ent_similarities, stream_values = [],[],[] # Will be filled by RNN and attention process
         for i in range(seq_len):
           #print("ent_stream_rnn_input.size()  : ", ent_stream_rnn_input.size())   # (32,16)
           #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
@@ -509,10 +509,10 @@ class RFS(BasicModel):
           ent_stream_rnn2_hidden = self.ent_stream_rnn2(ent_stream_rnn1_hidden, ent_stream_rnn2_hidden)
 
           ent_stream_logits = ent_stream_rnn2_hidden
-
+          
           if self.debug:
             stream_logits.append( ent_stream_logits )
-          
+      
           # Convert the ent_stream hidden layer to a query
           qs = self.stream_rnn_to_query( ent_stream_logits )
           #print("qs.size() : ", qs.size())  # (32,12)
@@ -523,6 +523,8 @@ class RFS(BasicModel):
           ent_similarity = torch.bmm( ks, torch.unsqueeze(qs, 2) )
           #print("ent_similarity.size() : ", ent_similarity.size())  # (32,26,1)
 
+          if self.debug:
+            ent_similarities.append( torch.squeeze( ent_similarity) )
 
           if True:
             # Softmax to get the weights
@@ -571,6 +573,7 @@ class RFS(BasicModel):
 
         if self.debug:
           self.stream_logits = stream_logits
+          self.ent_similarities = ent_similarities
           self.stream_values = stream_values
           self.ans_logits = ans
         
