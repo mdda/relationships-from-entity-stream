@@ -1,3 +1,6 @@
+# virtualenv-3.6 -p python3 --system-site-packages ./env3
+# . ./env3/bin/activate
+# pip install -r requirements.txt
 
 # See : http://pytorch.org/  "Get Started"
 # Python 3.6, GPU=cuda8.0
