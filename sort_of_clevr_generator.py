@@ -5,23 +5,27 @@ import random
 #import cPickle as pickle
 import pickle
 
-train_size = 9800
-test_size = 200
-img_size = 75
-size = 5
-question_size = 11 ##6 for one-hot vector of color, 2 for question type, 3 for question subtype
-"""Answer : [yes, no, rectangle, circle, r, g, b, o, k, y]"""
+train_size, test_size = 9800, 200
 
-nb_questions = 10
+img_size, size = 75, 5  # Size of img total, radius of sprite
+
+question_size = 11 ##6 for one-hot vector of color, 2 for question type, 3 for question subtype
+"""Question:[r, g, b, o, k, y, q1, q2, s1, s2, s3]"""
+
+# answer is returned as an integer index within the following:
+"""Answer : [yes, no, rectangle, circle, r, g, b, o, k, y]"""
+"""Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]""" # for counting
+
+nb_questions = 10   # questions generated about each image
 dirs = './data'
 
 colors = [
-    (0,0,255),##r
-    (0,255,0),##g
-    (255,0,0),##b
-    (0,156,255),##o
-    (128,128,128),##k
-    (0,255,255)##y
+    (0,0,255),     ##r  red
+    (0,255,0),     ##g  green
+    (255,0,0),     ##b  blue
+    (0,156,255),   ##o  orange
+    (128,128,128), ##k  grey
+    (0,255,255)    ##y  yellow
 ]
 
 
@@ -31,6 +35,7 @@ except:
     print('directory {} already exists'.format(dirs))
 
 def center_generate(objects):
+    # Generates a set of centers that do not overlap
     while True:
         pas = True
         center = np.random.randint(0+size, img_size - size, 2)        
@@ -59,11 +64,8 @@ def build_dataset():
             objects.append((color_id,center,'c'))
 
 
-    rel_questions = []
-    norel_questions = []
-    rel_answers = []
-    norel_answers = []
     """Non-relational questions"""
+    norel_questions, norel_answers = [], []
     for _ in range(nb_questions):
         question = np.zeros((question_size))
         color = random.randint(0,5)
@@ -94,8 +96,10 @@ def build_dataset():
             else:
                 answer = 1
         norel_answers.append(answer)
+
     
     """Relational questions"""
+    rel_questions,   rel_answers   = [], []
     for i in range(nb_questions):
         question = np.zeros((question_size))
         color = random.randint(0,5)
@@ -127,7 +131,8 @@ def build_dataset():
                 answer = 3
 
         elif subtype == 2:
-            """count->1~6"""
+            """count->1~6"""  
+            """Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]"""
             my_obj = objects[color][2]
             count = -1
             for obj in objects:
@@ -143,6 +148,18 @@ def build_dataset():
     img = img/255.
     dataset = (img, relations, norelations)
     return dataset
+
+#"""Question:[r, g, b, o, k, y, q1, q2, s1, s2, s3]"""
+# Answer is returned as an integer index within the following:
+#"""Answer : [yes, no, rectangle, circle, r, g, b, o, k, y]"""
+#"""Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]""" # for counting
+
+## Ideas for tougher questions :
+# For the 3 highlighted colours, are they in a row?  (horizontal or vertical)
+# For the 2 highlighted colours, what shape is between them?
+# For the n highlighted colours, are they all the same shape?
+
+
 
 
 print('building test datasets...')
