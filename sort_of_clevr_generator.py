@@ -155,10 +155,17 @@ def build_dataset():
 #"""Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]""" # for counting
 
 ## Ideas for tougher questions :
-# For the 3 highlighted colours, are they in a row?  (horizontal or vertical)
+# For the 3 highlighted colours, are they clockwise (in order)
+# For the 3 highlighted colours, do they enclose another object
 # For the 2 highlighted colours, what shape is between them?
-# For the n highlighted colours, are they all the same shape?
 
+# For the 3 highlighted colours, are they in a row?  (any orientation - tricky to define)
+
+## Not so tough
+# For the n highlighted colours, are they all the same shape?  
+#   But two different => no.  So don't have to think more than two deep...
+# For the 3 highlighted colours, are they in a row?  (horizontal or vertical)
+#   Can cheat by counting total in a row or column if orientated
 
 
 
