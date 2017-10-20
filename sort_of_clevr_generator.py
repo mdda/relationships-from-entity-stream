@@ -151,25 +151,33 @@ def build_dataset(nb_questions=nb_questions):
     trirel_questions,   trirel_answers   = [], []
     for i in range(nb_questions):
         question = np.zeros((question_size))
-        color = random.randint(0,5)
-        question[color] = 1
         question[6] = 1  # Both 6 and 7 set
         question[7] = 1  # Both 6 and 7 set
-        subtype = random.randint(0,2)
+        #subtype = random.randint(0,2)
+        subtype=0 # Fix for now
         question[subtype+8] = 1
         trirel_questions.append(question)
 
         if subtype == 0:
             """three colours are ordered clockwise -> yes/no"""
-            # TODO!
-            my_obj = objects[color][1]
-            dist_list = [((my_obj - obj[1]) ** 2).sum() for obj in objects]
-            dist_list[dist_list.index(0)] = 999
-            closest = dist_list.index(min(dist_list))
-            if objects[closest][2] == 'r':
-                answer = 2
-            else:
-                answer = 3
+            while True:
+              arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
+              arr_obj = [ objects[i][1] for i in arr ]
+              #for i in [0,1,2]:print( arr_obj[i] )
+              
+              # Enclosed area : (http://code.activestate.com/recipes/576896-3-point-area-finder/)
+              #   sign => direction of 'winding'
+              area = 0.5 * np.cross( arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0] )
+              #print("area=", area)
+
+              if np.abs(area)>400:  # Should not be near co-linear
+                for i in arr:question[i]=1
+                if area>1:
+                  answer = 0 # Yes
+                else:
+                  answer = 1 # No
+                
+                break
                 
         elif subtype == 1:
             """three colours enclose another object -> yes/no"""
