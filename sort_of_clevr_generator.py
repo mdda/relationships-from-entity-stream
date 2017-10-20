@@ -81,24 +81,16 @@ def build_dataset(nb_questions=nb_questions):
         """Answer : [yes, no, rectangle, circle, r, g, b, o, k, y]"""
         if subtype == 0:
             """query shape->rectangle/circle"""
-            if objects[color][2] == 'r':
-                answer = 2
-            else:
-                answer = 3
+            answer = 2 if objects[color][2] == 'r' else 3
 
         elif subtype == 1:
             """query horizontal position->yes/no"""
-            if objects[color][1][0] < img_size / 2:
-                answer = 0
-            else:
-                answer = 1
+            answer = 0 if objects[color][1][0] < img_size/2 else 1
 
         elif subtype == 2:
             """query vertical position->yes/no"""
-            if objects[color][1][1] < img_size / 2:
-                answer = 0
-            else:
-                answer = 1
+            answer = 0 if objects[color][1][1] < img_size/2 else 1
+            
         norel_answers.append(answer)
 
     
@@ -119,20 +111,14 @@ def build_dataset(nb_questions=nb_questions):
             dist_list = [((my_obj - obj[1]) ** 2).sum() for obj in objects]
             dist_list[dist_list.index(0)] = 999
             closest = dist_list.index(min(dist_list))
-            if objects[closest][2] == 'r':
-                answer = 2
-            else:
-                answer = 3
+            answer = 2 if objects[closest][2] == 'r' else 3
                 
         elif subtype == 1:
             """furthest-from->rectangle/circle"""
             my_obj = objects[color][1]
             dist_list = [((my_obj - obj[1]) ** 2).sum() for obj in objects]
             furthest = dist_list.index(max(dist_list))
-            if objects[furthest][2] == 'r':
-                answer = 2
-            else:
-                answer = 3
+            answer = 2 if objects[furthest][2] == 'r' else 3
 
         elif subtype == 2:
             """count->1~6"""  
@@ -159,6 +145,22 @@ def build_dataset(nb_questions=nb_questions):
         trirel_questions.append(question)
 
         if subtype == 0:
+            """#NONONO three colours enclose another object -> yes/no"""
+            """#NONONO three colours are colinear -> yes/no"""
+            """three colours enclose 'big' area -> yes/no"""
+            arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
+            arr_obj = [ objects[i][1] for i in arr ]
+            
+            s1, s2 = arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0]
+            area = 0.5 * np.cross( s1, s2 )
+            #normed = np.abs(area) / np.linalg.norm(s1) / np.linalg.norm(s2)
+            print("area = ", area)
+            #print("normed = ", normed)
+
+            for i in arr:question[i]=1
+            answer = 0 if np.abs(area)>img_size*img_size/15. else 1
+
+        elif subtype == 1:
             """three colours are ordered clockwise -> yes/no"""
             while True:
               arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
@@ -170,26 +172,11 @@ def build_dataset(nb_questions=nb_questions):
               area = 0.5 * np.cross( arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0] )
               #print("area=", area)
 
-              if np.abs(area)>400:  # Should not be near co-linear
+              if np.abs(area)>img_size*img_size/15.:  # Should not be near co-linear
                 for i in arr:question[i]=1
-                if area>1:
-                  answer = 0 # Yes
-                else:
-                  answer = 1 # No
-                
+                answer = 0 if area>0. else 1
                 break
                 
-        elif subtype == 1:
-            """three colours enclose another object -> yes/no"""
-            # TODO!
-            my_obj = objects[color][1]
-            dist_list = [((my_obj - obj[1]) ** 2).sum() for obj in objects]
-            furthest = dist_list.index(max(dist_list))
-            if objects[furthest][2] == 'r':
-                answer = 2
-            else:
-                answer = 3
-
         elif subtype == 2:
             """What shape is between two colours -> rectangle/circle"""
             # TODO!
@@ -216,11 +203,14 @@ def build_dataset(nb_questions=nb_questions):
 #"""Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]""" # for counting
 
 ## Ideas for tougher questions :
+# For the 3 highlighted colours, are they a 'large' triangle (area)
 # For the 3 highlighted colours, are they clockwise (in order)
-# For the 3 highlighted colours, do they enclose another object
 # For the 2 highlighted colours, what shape is between them?
 
+# For the 3 highlighted colours, do they enclose another object
 # For the 3 highlighted colours, are they in a row?  (any orientation - tricky to define)
+
+
 
 ## Not so tough
 # For the n highlighted colours, are they all the same shape?  
