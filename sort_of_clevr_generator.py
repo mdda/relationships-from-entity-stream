@@ -12,7 +12,9 @@ parser.add_argument('--dir', type=str, default='./data',
                     help='Directory in which to store the dataset')
 parser.add_argument('--add_tricky', action='store_true', default=True,
                     help='Add the tricky cases')
-                    
+
+parser.add_argument('-f', type=str, default='',  help='Fake for Jupyter notebook import')
+                 
 args = parser.parse_args()
 dirs = args.dir 
 
@@ -50,7 +52,7 @@ def center_generate(objects):
         if pas:
             return center
 
-def build_dataset():
+def build_dataset(nb_questions=nb_questions):
     objects = []
     img = np.ones((img_size,img_size,3)) * 255
     for color_id,color in enumerate(colors):  
@@ -219,6 +221,9 @@ def build_dataset():
 #   Can cheat by counting total in a row or column if orientated
 
 
+## alternative within Jupyter notebook :
+# import sort_of_clevr_generator
+
 if __name__ == "__main__":
     try:
         os.makedirs(dirs)
@@ -234,7 +239,9 @@ if __name__ == "__main__":
     #cv2.imwrite(os.path.join(dirs,'{}.png'.format(img_count)), cv2.resize(train_datasets[0][0]*255, (512,512)))
 
     print('saving datasets...')
-    filename = os.path.join(dirs,'sort-of-clevr.pickle')
+    filename = os.path.join(dirs,'sort-of-clevr++.pickle')
     with  open(filename, 'wb') as f:
         pickle.dump((train_datasets, test_datasets), f)
     print('datasets saved at {}'.format(filename))
+
+
