@@ -2,8 +2,19 @@ import cv2
 import os
 import numpy as np
 import random
-#import cPickle as pickle
+
 import pickle
+
+import argparse
+
+parser = argparse.ArgumentParser(description='PyTorch Relations-from-Stream sort-of-CLVR dataset builder')
+parser.add_argument('--dir', type=str, default='./data',  
+                    help='Directory in which to store the dataset')
+parser.add_argument('--add_tricky', action='store_true', default=True,
+                    help='Add the tricky cases')
+                    
+args = parser.parse_args()
+dirs = args.dir 
 
 train_size, test_size = 9800, 200
 
@@ -17,7 +28,6 @@ question_size = 11 ##6 for one-hot vector of color, 2 for question type, 3 for q
 """Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]""" # for counting
 
 nb_questions = 10   # questions generated about each image
-dirs = './data'
 
 colors = [
     (0,0,255),     ##r  red
@@ -27,12 +37,6 @@ colors = [
     (128,128,128), ##k  grey
     (0,255,255)    ##y  yellow
 ]
-
-
-try:
-    os.makedirs(dirs)
-except:
-    print('directory {} already exists'.format(dirs))
 
 def center_generate(objects):
     # Generates a set of centers that do not overlap
@@ -45,8 +49,6 @@ def center_generate(objects):
                     pas = False
         if pas:
             return center
-
-
 
 def build_dataset():
     objects = []
@@ -99,7 +101,7 @@ def build_dataset():
 
     
     """Relational questions"""
-    rel_questions,   rel_answers   = [], []
+    birel_questions,   birel_answers   = [], []
     for i in range(nb_questions):
         question = np.zeros((question_size))
         color = random.randint(0,5)
@@ -107,7 +109,7 @@ def build_dataset():
         question[7] = 1
         subtype = random.randint(0,2)
         question[subtype+8] = 1
-        rel_questions.append(question)
+        birel_questions.append(question)
 
         if subtype == 0:
             """closest-to->rectangle/circle"""
@@ -140,13 +142,62 @@ def build_dataset():
                     count +=1 
             answer = count+4
 
-        rel_answers.append(answer)
+        birel_answers.append(answer)
 
-    relations = (rel_questions, rel_answers)
+
+    """Tricky questions"""
+    trirel_questions,   trirel_answers   = [], []
+    for i in range(nb_questions):
+        question = np.zeros((question_size))
+        color = random.randint(0,5)
+        question[color] = 1
+        question[6] = 1  # Both 6 and 7 set
+        question[7] = 1  # Both 6 and 7 set
+        subtype = random.randint(0,2)
+        question[subtype+8] = 1
+        trirel_questions.append(question)
+
+        if subtype == 0:
+            """three colours are ordered clockwise -> yes/no"""
+            # TODO!
+            my_obj = objects[color][1]
+            dist_list = [((my_obj - obj[1]) ** 2).sum() for obj in objects]
+            dist_list[dist_list.index(0)] = 999
+            closest = dist_list.index(min(dist_list))
+            if objects[closest][2] == 'r':
+                answer = 2
+            else:
+                answer = 3
+                
+        elif subtype == 1:
+            """three colours enclose another object -> yes/no"""
+            # TODO!
+            my_obj = objects[color][1]
+            dist_list = [((my_obj - obj[1]) ** 2).sum() for obj in objects]
+            furthest = dist_list.index(max(dist_list))
+            if objects[furthest][2] == 'r':
+                answer = 2
+            else:
+                answer = 3
+
+        elif subtype == 2:
+            """What shape is between two colours -> rectangle/circle"""
+            # TODO!
+            my_obj = objects[color][2]
+            count = -1
+            for obj in objects:
+                if obj[2] == my_obj:
+                    count +=1 
+            answer = count+4
+
+        trirel_answers.append(answer)
+
     norelations = (norel_questions, norel_answers)
+    birelations = (birel_questions, birel_answers)
+    trirelations = (trirel_questions, trirel_answers)
     
     img = img/255.
-    dataset = (img, relations, norelations)
+    dataset = (img, norelations, birelations, trirelations)
     return dataset
 
 #"""Question:[r, g, b, o, k, y, q1, q2, s1, s2, s3]"""
@@ -168,19 +219,22 @@ def build_dataset():
 #   Can cheat by counting total in a row or column if orientated
 
 
+if __name__ == "__main__":
+    try:
+        os.makedirs(dirs)
+    except:
+        print('directory {} already exists'.format(dirs))
 
-print('building test datasets...')
-test_datasets = [build_dataset() for _ in range(test_size)]
-print('building train datasets...')
-train_datasets = [build_dataset() for _ in range(train_size)]
+    print('building test datasets...')
+    test_datasets = [build_dataset() for _ in range(test_size)]
+    print('building train datasets...')
+    train_datasets = [build_dataset() for _ in range(train_size)]
 
+    #img_count = 0
+    #cv2.imwrite(os.path.join(dirs,'{}.png'.format(img_count)), cv2.resize(train_datasets[0][0]*255, (512,512)))
 
-#img_count = 0
-#cv2.imwrite(os.path.join(dirs,'{}.png'.format(img_count)), cv2.resize(train_datasets[0][0]*255, (512,512)))
-
-
-print('saving datasets...')
-filename = os.path.join(dirs,'sort-of-clevr.pickle')
-with  open(filename, 'wb') as f:
-    pickle.dump((train_datasets, test_datasets), f)
-print('datasets saved at {}'.format(filename))
+    print('saving datasets...')
+    filename = os.path.join(dirs,'sort-of-clevr.pickle')
+    with  open(filename, 'wb') as f:
+        pickle.dump((train_datasets, test_datasets), f)
+    print('datasets saved at {}'.format(filename))

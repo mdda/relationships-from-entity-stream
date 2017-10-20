@@ -50,6 +50,9 @@ parser.add_argument('--process_coords', action='store_true', default=False,
 #parser.add_argument('--gumbel_hurdle', type=float, default=0,
 #                    help='Multiply temperature by 90%% if training is over this hurdle')
 
+parser.add_argument('--train_tricky', action='store_true', default=False,
+                    help='Also learn the additional "tricky relationships"')
+
 parser.add_argument('--debug', action='store_true', default=False,
                     help='Stores interim results in the model for external examination')
 
@@ -87,9 +90,9 @@ input_qst = Variable(input_qst)
 label = Variable(label)
 
 def tensor_data(data, i):
-    img = torch.from_numpy(np.asarray(data[0][bs*i:bs*(i+1)]))
-    qst = torch.from_numpy(np.asarray(data[1][bs*i:bs*(i+1)]))
-    ans = torch.from_numpy(np.asarray(data[2][bs*i:bs*(i+1)]))
+    img = torch.from_numpy(np.asarray(data[0][bs*i : bs*(i+1)]))
+    qst = torch.from_numpy(np.asarray(data[1][bs*i : bs*(i+1)]))
+    ans = torch.from_numpy(np.asarray(data[2][bs*i : bs*(i+1)]))
 
     input_img.data.resize_(img.size()).copy_(img)
     input_qst.data.resize_(qst.size()).copy_(qst)
@@ -103,68 +106,87 @@ def cvt_data_axis(data):
     return (img,qst,ans)
 
     
-def train(epoch, rel, norel):
+def train(epoch, norel, birel, trirel):
     model.train()
 
-    if not len(rel[0]) == len(norel[0]):
+    if not len(birel[0]) == len(norel[0]):
         print('Not equal length for relation dataset and non-relation dataset.')
         return
     
-    random.shuffle(rel)
     random.shuffle(norel)
+    random.shuffle(birel)
+    random.shuffle(trirel)
 
-    rel = cvt_data_axis(rel)
     norel = cvt_data_axis(norel)
+    birel = cvt_data_axis(birel)
+    trirel = cvt_data_axis(trirel)
 
     t0 = datetime.datetime.now()
-    accuracy_rels, accuracy_norels = [], []
+    accuracy_norels, accuracy_birels, accuracy_trirels = [], [], []
     
     for batch_idx in range(len(rel[0]) // bs):
-        tensor_data(rel, batch_idx)
-        accuracy_rel = model.train_(input_img, input_qst, label)
-        accuracy_rels.append(accuracy_rel)
-
         tensor_data(norel, batch_idx)
         accuracy_norel = model.train_(input_img, input_qst, label)
         accuracy_norels.append(accuracy_norel)
         
+        tensor_data(birel, batch_idx)
+        accuracy_birel = model.train_(input_img, input_qst, label)
+        accuracy_birels.append(accuracy_birel)
+
+        if args.train_tricky:
+          tensor_data(trirel, batch_idx)
+          accuracy_trirel = model.train_(input_img, input_qst, label)
+          accuracy_trirels.append(accuracy_trirel)
+        else:
+          accuracy_trirel=0.0
+        
         if batch_idx % args.log_interval == 0:
-            print('Train Epoch: {:2d} [{:6d}/{:6d} ({:3.0f}%)] Relations accuracy: {:3.0f}% | Non-relations accuracy: {:3.0f}%'.format(
+            print('Train Epoch: {:2d} [{:6d}/{:6d} ({:3.0f}%)] Non-relations accuracy: {:3.0f}% | Relations accuracy: {:3.0f}% | Tricky accuracy: {:3.0f}% | '.format(
                     epoch, batch_idx * bs * 2, 
                     len(rel[0]) * 2, 
                     100. * batch_idx * bs/ len(rel[0]), 
-                    accuracy_rel, accuracy_norel
+                    accuracy_norel, accuracy_birel, accuracy_trirel, 
                  ))
                  
-    av_accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
     av_accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
+    av_accuracy_birel = sum(accuracy_birels) / len(accuracy_birels)
+    av_accuracy_trirel = sum(accuracy_trirels) / len(accuracy_norels)  # The trirels and norels should be the same length in any case
     
     epoch_duration = (datetime.datetime.now()-t0).total_seconds()
     print("  This epoch elapsed time : %.0fsecs, remaining : %.0fmins" % (epoch_duration, (args.epochs-epoch)*epoch_duration/60.))
                                                                                                                            
             
 
-def test(epoch, rel, norel):
+def test(epoch, norel, birel, trirel):
     model.eval()
     if not len(rel[0]) == len(norel[0]):
         print('Not equal length for relation dataset and non-relation dataset.')
         return
     
-    rel = cvt_data_axis(rel)
     norel = cvt_data_axis(norel)
+    birel = cvt_data_axis(birel)
+    trirel = cvt_data_axis(trirel)
 
     accuracy_rels, accuracy_norels = [], []
     for batch_idx in range(len(rel[0]) // bs):
-        tensor_data(rel, batch_idx)
-        accuracy_rels.append(model.test_(input_img, input_qst, label))
-
         tensor_data(norel, batch_idx)
         accuracy_norels.append(model.test_(input_img, input_qst, label))
 
-    av_accuracy_rel = sum(accuracy_rels) / len(accuracy_rels)
+        tensor_data(birel, batch_idx)
+        accuracy_birels.append(model.test_(input_img, input_qst, label))
+
+        if args.train_tricky:
+          tensor_data(trirel, batch_idx)
+          accuracy_trirels.append(model.test_(input_img, input_qst, label))
+        else:
+          accuracy_trirels=[]
+
     av_accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
-    print('\n  Test set after epoch {:2d} : Relation accuracy: {:.0f}% | Non-relation accuracy: {:.0f}%\n'.format(
-                epoch, av_accuracy_rel, av_accuracy_norel))
+    av_accuracy_birel = sum(accuracy_birels) / len(accuracy_birels)
+    av_accuracy_trirel = sum(accuracy_trirels) / len(accuracy_norels)  # The trirels and norels should be the same length in any case
+    
+    print('\n  Test set after epoch {:2d} : Non-relation accuracy: {:.0f}% | Relation accuracy: {:.0f}% | Tricky accuracy: {:.0f}% \n'.format(
+                epoch, av_accuracy_norel, av_accuracy_birel, av_accuracy_trirel, ))
 
     
 def load_data():
@@ -172,28 +194,34 @@ def load_data():
     filename = os.path.join(data_dirs, 'sort-of-clevr.pickle')
     with open(filename, 'rb') as f:
       train_datasets, test_datasets = pickle.load(f)
-    rel_train, norel_train = [],[]
-    rel_test, norel_test = [],[]
+      
+    norel_train, birel_train, trirel_train = [],[],[]
+    norel_test, birel_test, trirel_test = [],[],[]
+    
     print('processing data...')
 
-    for img, relations, norelations in train_datasets:
+    for img, norelations, birelations, trirelations in train_datasets:
         img = np.swapaxes(img,0,2)
-        for qst,ans in zip(relations[0], relations[1]):
-            rel_train.append((img,qst,ans))
         for qst,ans in zip(norelations[0], norelations[1]):
             norel_train.append((img,qst,ans))
+        for qst,ans in zip(birelations[0], birelations[1]):
+            birel_train.append((img,qst,ans))
+        for qst,ans in zip(trirelations[0], trirelations[1]):
+            trirel_train.append((img,qst,ans))
 
-    for img, relations, norelations in test_datasets:
+    for img, norelations, birelations, trirelations in test_datasets:
         img = np.swapaxes(img,0,2)
-        for qst,ans in zip(relations[0], relations[1]):
-            rel_test.append((img,qst,ans))
         for qst,ans in zip(norelations[0], norelations[1]):
             norel_test.append((img,qst,ans))
+        for qst,ans in zip(birelations[0], birelations[1]):
+            birel_test.append((img,qst,ans))
+        for qst,ans in zip(trirelations[0], trirelations[1]):
+            trirel_test.append((img,qst,ans))
     
-    return (rel_train, rel_test, norel_train, norel_test)
+    return (norel_train, norel_test, birel_train, birel_test, trirel_train, trirel_test)
     
 
-rel_train, rel_test, norel_train, norel_test = load_data()
+norel_train, norel_test, birel_train, birel_test, trirel_train, trirel_test = load_data()
 
 if args.resume>0:
     filename = args.template % (args.model, args.resume, )
@@ -205,6 +233,6 @@ if args.resume>0:
         print('==> loaded checkpoint {}'.format(filename))
 
 for epoch in range(args.resume+1, args.resume+args.epochs + 1):
-    train(epoch, rel_train, norel_train)
-    test(epoch, rel_test, norel_test)
+    train(epoch, norel_train, birel_train, trirel_train)
+    test(epoch, norel_test, birel_test, trirel_test)
     model.save_model(args.template, epoch)
