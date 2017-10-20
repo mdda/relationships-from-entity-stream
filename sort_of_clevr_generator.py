@@ -52,7 +52,12 @@ def center_generate(objects):
         if pas:
             return center
 
+image_number=0
 def build_dataset(nb_questions=nb_questions):
+    global image_number
+    image_number+=1
+    print("image %6d" % (image_number,))
+    
     objects = []
     img = np.ones((img_size,img_size,3)) * 255
     for color_id,color in enumerate(colors):  
@@ -70,7 +75,7 @@ def build_dataset(nb_questions=nb_questions):
 
     """Non-relational questions"""
     norel_questions, norel_answers = [], []
-    for _ in range(nb_questions):
+    for i in range(nb_questions):
         question = np.zeros((question_size))
         color = random.randint(0,5)
         question[color] = 1
@@ -139,8 +144,8 @@ def build_dataset(nb_questions=nb_questions):
         question = np.zeros((question_size))
         question[6] = 1  # Both 6 and 7 set
         question[7] = 1  # Both 6 and 7 set
-        #subtype = random.randint(0,2)
-        subtype=2 # Fix for now
+        subtype = random.randint(0,2)
+        #subtype=0 # Fix for now
         question[subtype+8] = 1
         trirel_questions.append(question)
 
@@ -153,8 +158,9 @@ def build_dataset(nb_questions=nb_questions):
             
             s1, s2 = arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0]
             area = 0.5 * np.cross( s1, s2 )
+            #print("area = ", area)
+            
             #normed = np.abs(area) / np.linalg.norm(s1) / np.linalg.norm(s2)
-            print("area = ", area)
             #print("normed = ", normed)
 
             for i in arr:question[i]=1
@@ -162,7 +168,9 @@ def build_dataset(nb_questions=nb_questions):
 
         elif subtype == 1:
             """three colours are ordered clockwise -> yes/no"""
+            iter=0
             while True:
+              #print("clockwise")
               arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
               arr_obj = [ objects[i][1] for i in arr ]
               #for i in [0,1,2]:print( arr_obj[i] )
@@ -172,14 +180,17 @@ def build_dataset(nb_questions=nb_questions):
               area = 0.5 * np.cross( arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0] )
               #print("area=", area)
 
-              if np.abs(area)>img_size*img_size/15.:  # Should not be near co-linear
+              if np.abs(area)>img_size*img_size/(10.+iter):  # Should not be near co-linear (make it easier...)
                 for i in arr:question[i]=1
                 answer = 0 if area>0. else 1
                 break
+              iter += 1
                 
         elif subtype == 2:
             """What shape is the most isolated -> rectangle/circle"""
+            iter=0
             while True:
+              if iter>10:  print("most isolated %d" % iter)
               arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
               arr_obj = [ objects[i][1] for i in arr ]
               #for i in [0,1,2]:print( arr_obj[i] )
@@ -187,7 +198,8 @@ def build_dataset(nb_questions=nb_questions):
               (l0, l1, l2) = [ np.linalg.norm( arr_obj[i] - arr_obj[ (i+1) % 3 ] ) for i in [0,1,2] ]
               #print( "(l0, l1, l2)", (l0, l1, l2))
               
-              a=2.
+              a = 1. + 1./(1.+iter/10.)  # Descends slowly to 1...
+              
               furthest=-1
               # test : both connected > alpha*opposite
               if l2>l1*a and l0>l1*a:  furthest=0  
@@ -200,6 +212,7 @@ def build_dataset(nb_questions=nb_questions):
                 #print( "objects[arr[furthest]]", colors[furthest_o[0]], furthest_o[2] )
                 answer = 2 if furthest_o[2] == 'r' else 3
                 break
+              iter += 1
 
         trirel_answers.append(answer)
 
@@ -256,5 +269,3 @@ if __name__ == "__main__":
     with  open(filename, 'wb') as f:
         pickle.dump((train_datasets, test_datasets), f)
     print('datasets saved at {}'.format(filename))
-
-
