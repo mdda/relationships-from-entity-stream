@@ -140,7 +140,7 @@ def build_dataset(nb_questions=nb_questions):
         question[6] = 1  # Both 6 and 7 set
         question[7] = 1  # Both 6 and 7 set
         #subtype = random.randint(0,2)
-        subtype=0 # Fix for now
+        subtype=2 # Fix for now
         question[subtype+8] = 1
         trirel_questions.append(question)
 
@@ -178,14 +178,28 @@ def build_dataset(nb_questions=nb_questions):
                 break
                 
         elif subtype == 2:
-            """What shape is between two colours -> rectangle/circle"""
-            # TODO!
-            my_obj = objects[color][2]
-            count = -1
-            for obj in objects:
-                if obj[2] == my_obj:
-                    count +=1 
-            answer = count+4
+            """What shape is the most isolated -> rectangle/circle"""
+            while True:
+              arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
+              arr_obj = [ objects[i][1] for i in arr ]
+              #for i in [0,1,2]:print( arr_obj[i] )
+              
+              (l0, l1, l2) = [ np.linalg.norm( arr_obj[i] - arr_obj[ (i+1) % 3 ] ) for i in [0,1,2] ]
+              #print( "(l0, l1, l2)", (l0, l1, l2))
+              
+              a=2.
+              furthest=-1
+              # test : both connected > alpha*opposite
+              if l2>l1*a and l0>l1*a:  furthest=0  
+              if l0>l2*a and l1>l2*a:  furthest=1
+              if l1>l0*a and l2>l0*a:  furthest=2
+              
+              if furthest>=0:
+                for i in arr:question[i]=1
+                furthest_o = objects[arr[furthest]]
+                #print( "objects[arr[furthest]]", colors[furthest_o[0]], furthest_o[2] )
+                answer = 2 if furthest_o[2] == 'r' else 3
+                break
 
         trirel_answers.append(answer)
 
@@ -205,10 +219,11 @@ def build_dataset(nb_questions=nb_questions):
 ## Ideas for tougher questions :
 # For the 3 highlighted colours, are they a 'large' triangle (area)
 # For the 3 highlighted colours, are they clockwise (in order)
-# For the 2 highlighted colours, what shape is between them?
+# For the 3 highlighted colours, what is shape of most isolated one?
 
 # For the 3 highlighted colours, do they enclose another object
 # For the 3 highlighted colours, are they in a row?  (any orientation - tricky to define)
+# For the 2 highlighted colours, what shape is between them?
 
 
 
