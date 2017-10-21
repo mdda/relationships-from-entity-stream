@@ -268,11 +268,13 @@ class Harden(nn.Module):
         #self.y_onehot.scatter_(1, vec, 1)      
         #return self.y_onehot
         
+        values, indices = vec.max(1)
+
         y_onehot = torch.FloatTensor( vec.size() )
         if vec.is_cuda:
           y_onehot = y_onehot.cuda()
         y_onehot.zero_()
-        y_onehot.scatter_(1, vec, 1)
+        y_onehot.scatter_(1, indices, 1)
         return y_onehot
 
     def backward(self, grads):

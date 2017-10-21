@@ -178,15 +178,15 @@ Ideas:
   Teach each question type in turn, building up the curriculum
 
   Investigate processing
-    In first batch, find 1 example of each question type
-    Have a 'debug mode' that saves the internal state(s) during the processing of a batch
+    DONE In first batch, find 1 example of each question type
+    DONE Have a 'debug mode' that saves the internal state(s) during the processing of a batch
+    DONE Check on attention thing
     Look at the stats of individual samples within the batch 
-      Check on attention thing
 
   Once-only Retrieval : Keep a running total of the softmax inputs (starting at zero), and subtract from current query
 
   Postional information processing:
-    DONE   : Add 1-d convolution layers on top of image to allow for more 'integration' of the coordinates
+    DONE  : Add 1-d convolution layers on top of image to allow for more 'integration' of the coordinates
     LATER : Instead of later in hierarchy, add the positional information as extra input layer (so R,G,B,x,y)
   
   Try Recurrent Additive Network units instead of GRU?
@@ -195,7 +195,11 @@ Ideas:
   Or QRNN (drop-in compatible, apparently) 
     https://github.com/salesforce/pytorch-qrnn
     
-  
+  TRIED Add another set of quetions that are 'too tricky' for RN to compute (turns out to be v. difficult...)
+
+  Create a hard-attention option to use instead of softmax 
+  Like 'dropout', use it in a fixed proportion during training, and solely during testing
+    Problem with using a 'plain' temperature parameter on top of softmax is that weights will just scale down
   
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
