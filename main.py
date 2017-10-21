@@ -124,7 +124,7 @@ def train(epoch, norel, birel, trirel):
     t0 = datetime.datetime.now()
     accuracy_norels, accuracy_birels, accuracy_trirels = [], [], []
     
-    for batch_idx in range(len(rel[0]) // bs):
+    for batch_idx in range(len(norel[0]) // bs):
         tensor_data(norel, batch_idx)
         accuracy_norel = model.train_(input_img, input_qst, label)
         accuracy_norels.append(accuracy_norel)
@@ -133,18 +133,18 @@ def train(epoch, norel, birel, trirel):
         accuracy_birel = model.train_(input_img, input_qst, label)
         accuracy_birels.append(accuracy_birel)
 
+        accuracy_trirel, example_factor = 0.0, 2
         if args.train_tricky:
+          example_factor = 3
           tensor_data(trirel, batch_idx)
           accuracy_trirel = model.train_(input_img, input_qst, label)
           accuracy_trirels.append(accuracy_trirel)
-        else:
-          accuracy_trirel=0.0
         
         if batch_idx % args.log_interval == 0:
             print('Train Epoch: {:2d} [{:6d}/{:6d} ({:3.0f}%)] Non-relations accuracy: {:3.0f}% | Relations accuracy: {:3.0f}% | Tricky accuracy: {:3.0f}% | '.format(
-                    epoch, batch_idx * bs * 2, 
-                    len(rel[0]) * 2, 
-                    100. * batch_idx * bs/ len(rel[0]), 
+                    epoch, batch_idx * bs * example_factor, 
+                    len(norel[0]) * example_factor, 
+                    100. * batch_idx * bs/ len(norel[0]), 
                     accuracy_norel, accuracy_birel, accuracy_trirel, 
                  ))
                  
@@ -159,7 +159,7 @@ def train(epoch, norel, birel, trirel):
 
 def test(epoch, norel, birel, trirel):
     model.eval()
-    if not len(rel[0]) == len(norel[0]):
+    if not len(birel[0]) == len(norel[0]):
         print('Not equal length for relation dataset and non-relation dataset.')
         return
     
@@ -167,8 +167,8 @@ def test(epoch, norel, birel, trirel):
     birel = cvt_data_axis(birel)
     trirel = cvt_data_axis(trirel)
 
-    accuracy_rels, accuracy_norels = [], []
-    for batch_idx in range(len(rel[0]) // bs):
+    accuracy_norels, accuracy_birels, accuracy_trirels = [], [], []
+    for batch_idx in range(len(norel[0]) // bs):
         tensor_data(norel, batch_idx)
         accuracy_norels.append(model.test_(input_img, input_qst, label))
 
@@ -178,8 +178,6 @@ def test(epoch, norel, birel, trirel):
         if args.train_tricky:
           tensor_data(trirel, batch_idx)
           accuracy_trirels.append(model.test_(input_img, input_qst, label))
-        else:
-          accuracy_trirels=[]
 
     av_accuracy_norel = sum(accuracy_norels) / len(accuracy_norels)
     av_accuracy_birel = sum(accuracy_birels) / len(accuracy_birels)
@@ -191,7 +189,7 @@ def test(epoch, norel, birel, trirel):
     
 def load_data():
     print('loading data...')
-    filename = os.path.join(data_dirs, 'sort-of-clevr.pickle')
+    filename = os.path.join(data_dirs, 'sort-of-clevr++.pickle')
     with open(filename, 'rb') as f:
       train_datasets, test_datasets = pickle.load(f)
       

@@ -2,7 +2,7 @@
 
 #python sort_of_clevr_generator.py
 
-#python -u main.py --model=RN      --epochs=20  | tee  model/training_RN.log   
+#python -u main.py --model=RN --epochs=50  | tee --append model/training_RN_dataset++.log   
 # Test set after epoch  1 : Relation accuracy: 67% | Non-relation accuracy: 61%
 # Test set after epoch  5 : Relation accuracy: 71% | Non-relation accuracy: 61%
 # Test set after epoch 10 : Relation accuracy: 73% | Non-relation accuracy: 68%
@@ -10,7 +10,7 @@
 # 252secs per epoch on 760 GTX
 
 
-#python -u main.py --model=CNN_MLP --epochs=100 | tee  model/training_CNN_MLP.log
+#python -u main.py --model=CNN_MLP --epochs=100 | tee --append model/training_CNN_MLP.log
 # Test set after epoch  1 : Relation accuracy: 53% | Non-relation accuracy: 59%
 # Test set after epoch  5 : Relation accuracy: 72% | Non-relation accuracy: 59%
 # Test set after epoch 10 : Relation accuracy: 73% | Non-relation accuracy: 62%
@@ -22,7 +22,7 @@
 #  43secs per epoch on 760 GTX
 
 
-#python -u main.py --model=RFS     --epochs=20  | tee  model/training_RFS.log
+#python -u main.py --model=RFS     --epochs=20  | tee --append model/training_RFS.log
 # No softmax on output (Do'h)
 # Epoch   0 (end) :   Test set: Relation accuracy: 35% | Non-relation accuracy: 17%
 # Epoch  10 (end) :   Test set: Relation accuracy:  0% | Non-relation accuracy: 34%
@@ -193,3 +193,10 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 30 : Relation accuracy: 93% | Non-relation accuracy: 99%
 #  Test set after epoch 40 : Relation accuracy: 93% | Non-relation accuracy: 100%
 #  Test set after epoch 50 : Relation accuracy: 94% | Non-relation accuracy: 99%
+
+
+#  -- added 'tricky' relationships to dataset...
+# python -u main.py --model=RN --epochs=50  | tee --append model/training_RN_dataset++.log   
+# python -u main.py --model=RN --epochs=50 --train_tricky --template model/{}_tricky_{:03d}.pth | tee --append model/training_RN_dataset++_tricky.log   
+#   Unfortunately, the standard RN model can cope with that too - though they are learned later than the birels (as to be expected, probably)
+
