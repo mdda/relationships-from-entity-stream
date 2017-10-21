@@ -200,3 +200,5 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 # python -u main.py --model=RN --epochs=50 --template model/{}_tricky_{:03d}.pth --train_tricky | tee --append model/training_RN_dataset++_tricky.log   
 #   Unfortunately, the standard RN model can cope with that too - though they are learned later than the birels (as to be expected, probably)
 
+
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --seq_len 3 --template model/{}_3item-span-seed10_{:03d}.pth | tee --append logs/RFS_3item-span.log

@@ -45,6 +45,9 @@ parser.add_argument('--rnn_hidden_size', type=int, default=32,
 parser.add_argument('--process_coords', action='store_true', default=False,
                     help='Process the coordinates with 1x1 covolutions, instead of just concatting')
 
+parser.add_argument('--seq_len', type=int, default=2, 
+                    help='length of entities question and answer streams')
+
 #parser.add_argument('--gumbel_temp', type=float, default=-1,
 #                    help='Gumbel temperature (if >0)')
 #parser.add_argument('--gumbel_hurdle', type=float, default=0,
@@ -58,6 +61,7 @@ parser.add_argument('--debug', action='store_true', default=False,
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
+#print(args.seq_len)
 
 torch.manual_seed(args.seed)
 if args.cuda:

@@ -177,13 +177,13 @@ Ideas:
   
   Teach each question type in turn, building up the curriculum
 
+  Force stream to end in 'STOP' state (look for size of value<eps)
+
   Investigate processing
     DONE In first batch, find 1 example of each question type
     DONE Have a 'debug mode' that saves the internal state(s) during the processing of a batch
     DONE Check on attention thing
     Look at the stats of individual samples within the batch 
-
-  Once-only Retrieval : Keep a running total of the softmax inputs (starting at zero), and subtract from current query
 
   Postional information processing:
     DONE  : Add 1-d convolution layers on top of image to allow for more 'integration' of the coordinates
@@ -196,6 +196,8 @@ Ideas:
     https://github.com/salesforce/pytorch-qrnn
     
   TRIED Add another set of quetions that are 'too tricky' for RN to compute (turns out to be v. difficult...)
+
+  Once-only Retrieval : Keep a running total of the softmax inputs (starting at zero), and subtract from current query
 
   Create a hard-attention option to use instead of softmax 
   Like 'dropout', use it in a fixed proportion during training, and solely during testing

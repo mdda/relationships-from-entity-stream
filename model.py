@@ -371,6 +371,13 @@ class RFS(BasicModel):
             v_blank = v_blank.cuda()
         self.v_blank = Variable(v_blank, requires_grad=False)  # This is just fixed at ==0 == 'STOP'
 
+        #seq_len=8
+        #seq_len=4 
+        #seq_len=2 # Works super-well
+        #seq_len=1
+        
+        self.seq_len = args.seq_len
+        
 
         ent_stream_rnn1_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) )
         if args.cuda:
@@ -487,13 +494,7 @@ class RFS(BasicModel):
         #print("qst.size() : ", qst.size())  # (32,11)
 
 
-        #seq_len=8
-        #seq_len=4 
-        seq_len=2 # Works super-well
-        #seq_len=1
-        
-        #seq_len=2 # Try with Gunbel --- meh
-        
+        seq_len = self.seq_len
 
         ent_stream_rnn1_hidden = torch.cat( 
              [qst, self.ent_stream_rnn1_hidden_pad.expand( (batch_size, self.rnn_hidden_size-self.question_size) )], 1)
