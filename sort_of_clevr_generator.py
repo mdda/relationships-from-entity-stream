@@ -146,7 +146,7 @@ def build_dataset(nb_questions=nb_questions):
         question[6] = 1  # Both 6 and 7 set
         question[7] = 1  # Both 6 and 7 set
         subtype = random.randint(0,2)
-        subtype=0 # Fix for now
+        subtype=1 # Fix for now
         question[subtype+8] = 1
         trirel_questions.append(question)
 
@@ -164,34 +164,31 @@ def build_dataset(nb_questions=nb_questions):
             
             for i in arr:question[i]=1
             
-            count = 0 # Include original things (so min==2)
+            count = -2 # Exclude original things (so min==0)  0=='circle'
             for obj in objects:
                 if np.linalg.norm( np.cross(arr_obj[1]-obj[1], s1) ) / np.linalg.norm( s1 ) < size*2.:
                     #print("Colinear : ", colors_str[ obj[0] ])
                     count +=1 
             answer = count+3
-            
 
         elif subtype == 1:
-            """three colours are ordered clockwise -> yes/no"""
-            iter=0
-            while True:
-              #print("clockwise")
-              arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
-              arr_obj = [ objects[i][1] for i in arr ]
-              #for i in [0,1,2]:print( arr_obj[i] )
-              
-              # Enclosed area : (http://code.activestate.com/recipes/576896-3-point-area-finder/)
-              #   sign => direction of 'winding'
-              area = 0.5 * np.cross( arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0] )
-              #print("area=", area)
+            """How many things are eqidistant from 2 chosen colours?"""
+            arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
+            arr_obj = [ objects[i][1] for i in arr ]
+            
+            #print("Point 1 : ", colors_str[ objects[ arr[0] ][0] ])
+            #print("Point 2 : ", colors_str[ objects[ arr[1] ][0] ])
+            
+            for i in arr:question[i]=1
+            
+            count = 0 # (min==0)  0=='circle'
+            for obj in objects:
+                if np.abs( np.linalg.norm( arr_obj[1]-obj[1] ) - np.linalg.norm( arr_obj[0]-obj[1] )) < size:
+                    #print("Equidistant : ", colors_str[ obj[0] ])
+                    count +=1 
+            answer = count+3
+            
 
-              if np.abs(area)>img_size*img_size/(10.+iter):  # Should not be near co-linear (make it easier...)
-                for i in arr:question[i]=1
-                answer = 0 if area>0. else 1
-                break
-              iter += 1
-                
         elif subtype == 2:
             """What shape is the most isolated -> rectangle/circle"""
             iter=0
@@ -235,6 +232,26 @@ def build_dataset(nb_questions=nb_questions):
             for i in arr:question[i]=1
             answer = 0 if np.abs(area)>img_size*img_size/15. else 1
 
+        elif subtype == -1:
+            """three colours are ordered clockwise -> yes/no"""
+            iter=0
+            while True:
+              #print("clockwise")
+              arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
+              arr_obj = [ objects[i][1] for i in arr ]
+              #for i in [0,1,2]:print( arr_obj[i] )
+              
+              # Enclosed area : (http://code.activestate.com/recipes/576896-3-point-area-finder/)
+              #   sign => direction of 'winding'
+              area = 0.5 * np.cross( arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0] )
+              #print("area=", area)
+
+              if np.abs(area)>img_size*img_size/(10.+iter):  # Should not be near co-linear (make it easier...)
+                for i in arr:question[i]=1
+                answer = 0 if area>0. else 1
+                break
+              iter += 1
+                
 
         trirel_answers.append(answer)
 
