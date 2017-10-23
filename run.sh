@@ -202,3 +202,4 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 
 
 #python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --seq_len 3 --template model/{}_3item-span-seed10_{:03d}.pth | tee --append logs/RFS_3item-span.log
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_2item-span-tricky.log

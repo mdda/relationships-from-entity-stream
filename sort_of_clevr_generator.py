@@ -39,6 +39,7 @@ colors = [
     (128,128,128), ##k  grey
     (0,255,255)    ##y  yellow
 ]
+colors_str = 'red green blue orange grey yellow'.split()
 
 def center_generate(objects):
     # Generates a set of centers that do not overlap
@@ -60,17 +61,17 @@ def build_dataset(nb_questions=nb_questions):
     
     objects = []
     img = np.ones((img_size,img_size,3)) * 255
-    for color_id,color in enumerate(colors):  
+    for color_id, color in enumerate(colors):  
         center = center_generate(objects)
         if random.random()<0.5:
             start = (center[0]-size, center[1]-size)
             end = (center[0]+size, center[1]+size)
             cv2.rectangle(img, start, end, color, -1)
-            objects.append((color_id,center,'r'))
+            objects.append((color_id, center, 'r'))
         else:
             center_ = (center[0], center[1])
             cv2.circle(img, center_, size, color, -1)
-            objects.append((color_id,center,'c'))
+            objects.append((color_id, center, 'c'))
 
 
     """Non-relational questions"""
@@ -145,26 +146,31 @@ def build_dataset(nb_questions=nb_questions):
         question[6] = 1  # Both 6 and 7 set
         question[7] = 1  # Both 6 and 7 set
         subtype = random.randint(0,2)
-        #subtype=0 # Fix for now
+        subtype=0 # Fix for now
         question[subtype+8] = 1
         trirel_questions.append(question)
 
         if subtype == 0:
-            """#NONONO three colours enclose another object -> yes/no"""
-            """#NONONO three colours are colinear -> yes/no"""
-            """three colours enclose 'big' area -> yes/no"""
-            arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
+            """How many things are colinear with 2 chosen colours?"""
+            arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
             arr_obj = [ objects[i][1] for i in arr ]
             
-            s1, s2 = arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0]
-            area = 0.5 * np.cross( s1, s2 )
-            #print("area = ", area)
+            #print("Point 1 : ", colors_str[ objects[ arr[0] ][0] ])
+            #print("Point 2 : ", colors_str[ objects[ arr[1] ][0] ])
             
-            #normed = np.abs(area) / np.linalg.norm(s1) / np.linalg.norm(s2)
-            #print("normed = ", normed)
-
+            # Want distant to that line to be <shape_size
+            s1 = arr_obj[1]-arr_obj[0]
+            #s1_norm = s1 / np.linalg.norm( s1 )
+            
             for i in arr:question[i]=1
-            answer = 0 if np.abs(area)>img_size*img_size/15. else 1
+            
+            count = 0 # Include original things (so min==2)
+            for obj in objects:
+                if np.linalg.norm( np.cross(arr_obj[1]-obj[1], s1) ) / np.linalg.norm( s1 ) < size*2.:
+                    #print("Colinear : ", colors_str[ obj[0] ])
+                    count +=1 
+            answer = count+3
+            
 
         elif subtype == 1:
             """three colours are ordered clockwise -> yes/no"""
@@ -213,6 +219,22 @@ def build_dataset(nb_questions=nb_questions):
                 answer = 2 if furthest_o[2] == 'r' else 3
                 break
               iter += 1
+              
+        elif subtype == -1:
+            """three colours enclose 'big' area -> yes/no"""
+            arr = sorted( random.sample(range(0, 6), 3) )  # pick 3 distinct colours, sorted 
+            arr_obj = [ objects[i][1] for i in arr ]
+            
+            s1, s2 = arr_obj[1]-arr_obj[0], arr_obj[2]-arr_obj[0]
+            area = 0.5 * np.cross( s1, s2 )
+            #print("area = ", area)
+            
+            #normed = np.abs(area) / np.linalg.norm(s1) / np.linalg.norm(s2)
+            #print("normed = ", normed)
+
+            for i in arr:question[i]=1
+            answer = 0 if np.abs(area)>img_size*img_size/15. else 1
+
 
         trirel_answers.append(answer)
 
