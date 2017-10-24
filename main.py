@@ -226,8 +226,9 @@ def load_data():
 norel_train, norel_test, birel_train, birel_test, trirel_train, trirel_test = load_data()
 
 if args.resume>0:
-    filename = args.template % (args.model, args.resume, )
-    print(filename)
+    #print(args.template, type(args.model), type(args.resume), ) 
+    filename = args.template.format(args.model, args.resume, )
+    #print(filename)
     if os.path.isfile(filename):
         print('==> loading checkpoint {}'.format(filename))
         checkpoint = torch.load(filename)

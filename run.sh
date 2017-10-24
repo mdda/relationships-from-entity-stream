@@ -196,20 +196,21 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 
 
 #  -- added 'tricky' relationships to dataset...
-# python -u main.py --model=RN --epochs=50 --template model/{}_{:03d}.pth | tee --append model/training_RN_dataset++.log   
-# python -u main.py --model=RN --epochs=50 --template model/{}_tricky_{:03d}.pth --train_tricky | tee --append model/training_RN_dataset++_tricky.log   
+# python -u main.py --model=RN --epochs=50 --template model/{}_{:03d}.pth | tee --append logs/training_RN_dataset++.log   
+# python -u main.py --model=RN --epochs=50 --template model/{}_tricky_{:03d}.pth --train_tricky | tee --append logs/training_RN_dataset++_tricky.log   
 #   Unfortunately, the standard RN model can cope with that too - though they are learned later than the birels (as to be expected, probably)
 
 
 
 #  -- updated to three more subtle 'tricky' relationships to dataset...
-# python -u main.py --model=RN --epochs=50 --template model/{}_tricky_{:03d}.pth --train_tricky | tee --append model/training_RN_dataset++_tricky.log   
+# python -u main.py --model=RN --epochs=50 --template model/{}_tricky_{:03d}.pth --train_tricky | tee --append logs/training_RN_dataset++_tricky.log   
 
 # python -u main.py --model=CNN_MLP --epochs=50 --template model/{}_tricky_{:03d}.pth --train_tricky | tee --append model/training_CNN_dataset++_tricky.log   
 #  996  cp /mnt/data/Personal/logs.tmp/CNNMLP_tricky_050.pth model/
 #  999  cp /mnt/data/Personal/logs.tmp/training_CNN_dataset++_tricky.log  logs/
 
 # python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_2item-span-tricky.log
+# python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 40 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_2item-span-tricky.log
 
 # python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --seq_len 3 --template model/{}_3item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_3item-span-tricky.log
 #  997  cp /mnt/data/Personal/logs.tmp/RFS_3item-span-seed10-tricky_050.pth model/
