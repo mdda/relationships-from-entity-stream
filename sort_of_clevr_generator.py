@@ -152,15 +152,23 @@ def build_dataset(nb_questions=nb_questions):
 
         if subtype == 0:
             """How many things are colinear with 2 chosen colours?"""
-            arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
-            arr_obj = [ objects[i][1] for i in arr ]
-            
-            #print("Point 1 : ", colors_str[ objects[ arr[0] ][0] ])
-            #print("Point 2 : ", colors_str[ objects[ arr[1] ][0] ])
-            
-            # Want distant to that line to be <shape_size
-            s1 = arr_obj[1]-arr_obj[0]
-            #s1_norm = s1 / np.linalg.norm( s1 )
+            min_dist = size*5.
+            while True:
+                arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
+                arr_obj = [ objects[i][1] for i in arr ]
+              
+                #print("Point 1 : ", colors_str[ objects[ arr[0] ][0] ])
+                #print("Point 2 : ", colors_str[ objects[ arr[1] ][0] ])
+                
+                # Want distant to that line to be <shape_size
+                s1 = arr_obj[1]-arr_obj[0]
+                #s1_norm = s1 / np.linalg.norm( s1 )
+                
+                if np.linalg.norm(s1)>min_dist:
+                    break
+                    
+                min_dist *= 0.95  # Make sure it will happen eventually
+                print("min_dist -> ", min_dist)
             
             for i in arr:question[i]=1
             
@@ -173,25 +181,51 @@ def build_dataset(nb_questions=nb_questions):
 
         elif subtype == 1:
             """How many things are eqidistant from 2 chosen colours?"""
-            arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
-            arr_obj = [ objects[i][1] for i in arr ]
+            min_dist = size*5.
+            while True:
+                arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
+                arr_obj = [ objects[i][1] for i in arr ]
             
+                s1 = arr_obj[1] - arr_obj[0]
+                if np.linalg.norm(s1)>min_dist:
+                    break
+                    
+                min_dist *= 0.95  # Make sure it will happen eventually
+                print("min_dist -> ", min_dist)
+
             for i in arr:question[i]=1
+            
+            unit_v = s1 / np.linalg.norm(s1)
             
             count = 0 # (min==0)  0=='circle'
             for obj in objects:
-                if np.abs( np.linalg.norm( arr_obj[1]-obj[1] ) - np.linalg.norm( arr_obj[0]-obj[1] )) < size:
+                proj = arr_obj[1] + np.dot( unit_v, obj[1]-arr_obj[1]) * unit_v
+                #d1, d2 = np.linalg.norm( arr_obj[1]-obj[1] ), np.linalg.norm( arr_obj[0]-obj[1] )
+                d1, d2 = np.linalg.norm( arr_obj[1]-proj ), np.linalg.norm( arr_obj[0]-proj )
+                
+                #print("  Test %10s : %3.0f -%3.0f = %3.0f vs  %3.0f" % ( colors_str[ obj[0] ], d1, d2, np.abs(d1-d2), size*2.,))
+                if np.abs( d1-d2 ) < size*2.:
                     #print("Equidistant : ", colors_str[ obj[0] ])
                     count +=1 
             answer = count+3
             
         elif subtype == 2:
             """How many things are on clockwise side of line joining 2 chosen colours?"""
-            arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
-            arr_obj = [ objects[i][1] for i in arr ]
+            min_dist = size*5.
+            while True:
+                arr = sorted( random.sample(range(0, 6), 2) )  # pick 2 distinct colours, sorted 
+                arr_obj = [ objects[i][1] for i in arr ]
+                
+                s1 = arr_obj[1]-arr_obj[0]
+                
+                if np.linalg.norm(s1)>min_dist:
+                    break
+                    
+                min_dist *= 0.95  # Make sure it will happen eventually
+                print("min_dist -> ", min_dist)
+                
             
             for i in arr:question[i]=1
-            s1 = arr_obj[1]-arr_obj[0]
             
             count = 0 # (min==0)  0=='circle'
             for obj in objects:
