@@ -157,7 +157,7 @@ def train(epoch, norel, birel, trirel):
     av_accuracy_trirel = sum(accuracy_trirels) / len(accuracy_norels)  # The trirels and norels should be the same length in any case
     
     epoch_duration = (datetime.datetime.now()-t0).total_seconds()
-    print("  This epoch elapsed time : %.0fsecs, remaining : %.0fmins" % (epoch_duration, (args.epochs-epoch)*epoch_duration/60.))
+    print("  This epoch elapsed time : %.0fsecs, remaining : %.0fmins" % (epoch_duration, (args.resume+args.epochs-epoch)*epoch_duration/60.))
                                                                                                                            
             
 
