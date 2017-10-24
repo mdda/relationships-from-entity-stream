@@ -146,7 +146,7 @@ def build_dataset(nb_questions=nb_questions):
         question[6] = 1  # Both 6 and 7 set
         question[7] = 1  # Both 6 and 7 set
         subtype = random.randint(0,2)
-        subtype=2 # Fix for now
+        #subtype=2 # Fix for now
         question[subtype+8] = 1
         trirel_questions.append(question)
 
