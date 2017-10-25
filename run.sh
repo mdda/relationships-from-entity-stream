@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#python sort_of_clevr_generator.py
+# python sort_of_clevr_generator.py
 
 #python -u main.py --model=RN --epochs=50  | tee --append model/training_RN_dataset++.log   
 # Test set after epoch  1 : Relation accuracy: 67% | Non-relation accuracy: 61%
@@ -217,3 +217,9 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  998  cp /mnt/data/Personal/logs.tmp/RFS_3item-span-tricky.log  logs/
 
 
+
+# python -u main.py --model=RN --epochs=50 --template model/{}_tricky2_{:03d}.pth --train_tricky | tee --append logs/training_RN_dataset++_tricky2.log   
+# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-tricky2.log
+  
+  
+  
