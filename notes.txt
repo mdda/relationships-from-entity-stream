@@ -195,14 +195,14 @@ Ideas:
   Or QRNN (drop-in compatible, apparently) 
     https://github.com/salesforce/pytorch-qrnn
     
-  Add another set of quetions that are 'too tricky' for RN to compute (turns out to be v. difficult...)
+  Add another set of questions that are 'too tricky' for RN to compute (turns out to be v. difficult...)
     NOPE :  Are 3 listed colours in clockwise order?
     NOPE :  Do 3 listed colours form a large triangle?
     NOPE :  What is the shape of the outlier of these three colours?
-    TODO :  How many other shapes are colinear with these 2?
-    TODO :  How many other shapes are equidistant from these 2?
-    TODO :  How many are below the line joining these 2?
-    
+    DONE :  How many other shapes are colinear with these 2?
+    DONE :  How many other shapes are equidistant from these 2?
+    DONE :  How many are below the line joining these 2?
+  Check the analysis of specific cases on the trained RFS network
 
   Once-only Retrieval : Keep a running total of the softmax inputs (starting at zero), and subtract from current query
 

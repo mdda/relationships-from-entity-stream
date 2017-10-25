@@ -315,6 +315,10 @@ def build_dataset(nb_questions=nb_questions):
 #"""Answer : [yes, no, rectangle, circle, 1, 2, 3, 4, 5, 6]""" # for counting
 
 ## Ideas for tougher questions :
+# How many things are colinear with 2 chosen colours?
+# How many things are eqidistant from 2 chosen colours?
+# How many things are on clockwise side of line joining 2 chosen colours?
+
 # For the 3 highlighted colours, are they a 'large' triangle (area)
 # For the 3 highlighted colours, are they clockwise (in order)
 # For the 3 highlighted colours, what is shape of most isolated one?
