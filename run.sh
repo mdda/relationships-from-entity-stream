@@ -225,4 +225,67 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 ## Peformance on norel and birel pretty much the same.  trirel a little worse (50s vs 60) - but should be winning...
 
 
-# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-tricky2.log
+# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6  --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-tricky2.log
+# python -u main.py --model=RFS --epochs=50 --lr=0.0003 --rnn_hidden_size=32 --coord_extra_len=6 --resume 50 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-tricky2.log
+
+# python -u main.py --model=RN  --epochs=50 --seed 10 --template model/{}_{:03d}.pth | tee --append logs/training_RN_seed10.log   
+
+(env3) [andrewsm@simlim relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-6coord.log 
+  Test set after epoch  1 : Non-relation accuracy: 54% | Relation accuracy: 48% | Tricky accuracy: 0% 
+  Test set after epoch  2 : Non-relation accuracy: 63% | Relation accuracy: 71% | Tricky accuracy: 0% 
+  Test set after epoch  3 : Non-relation accuracy: 64% | Relation accuracy: 72% | Tricky accuracy: 0% 
+  Test set after epoch  4 : Non-relation accuracy: 65% | Relation accuracy: 73% | Tricky accuracy: 0% 
+  Test set after epoch  5 : Non-relation accuracy: 63% | Relation accuracy: 74% | Tricky accuracy: 0% 
+  Test set after epoch  6 : Non-relation accuracy: 64% | Relation accuracy: 74% | Tricky accuracy: 0% 
+  Test set after epoch  7 : Non-relation accuracy: 64% | Relation accuracy: 74% | Tricky accuracy: 0% 
+  Test set after epoch  8 : Non-relation accuracy: 64% | Relation accuracy: 74% | Tricky accuracy: 0% 
+  Test set after epoch  9 : Non-relation accuracy: 65% | Relation accuracy: 73% | Tricky accuracy: 0% 
+  Test set after epoch 10 : Non-relation accuracy: 68% | Relation accuracy: 73% | Tricky accuracy: 0% 
+  Test set after epoch 11 : Non-relation accuracy: 85% | Relation accuracy: 75% | Tricky accuracy: 0% 
+  Test set after epoch 12 : Non-relation accuracy: 94% | Relation accuracy: 81% | Tricky accuracy: 0% 
+  Test set after epoch 13 : Non-relation accuracy: 99% | Relation accuracy: 87% | Tricky accuracy: 0% 
+  Test set after epoch 14 : Non-relation accuracy: 99% | Relation accuracy: 89% | Tricky accuracy: 0% 
+  Test set after epoch 15 : Non-relation accuracy: 99% | Relation accuracy: 90% | Tricky accuracy: 0% 
+  Test set after epoch 16 : Non-relation accuracy: 99% | Relation accuracy: 91% | Tricky accuracy: 0% 
+  Test set after epoch 17 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
+  Test set after epoch 18 : Non-relation accuracy: 99% | Relation accuracy: 91% | Tricky accuracy: 0% 
+  Test set after epoch 19 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
+  Test set after epoch 20 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
+  Test set after epoch 21 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 22 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
+  Test set after epoch 23 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 24 : Non-relation accuracy: 100% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 25 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 26 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 27 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 28 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 29 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 30 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 31 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 32 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 33 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 34 : Non-relation accuracy: 99% | Relation accuracy: 96% | Tricky accuracy: 0% 
+  Test set after epoch 35 : Non-relation accuracy: 100% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 36 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 37 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 38 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 39 : Non-relation accuracy: 99% | Relation accuracy: 96% | Tricky accuracy: 0% 
+  Test set after epoch 40 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 41 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 42 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 43 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 44 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 45 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 46 : Non-relation accuracy: 99% | Relation accuracy: 95% | Tricky accuracy: 0% 
+  Test set after epoch 47 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+  Test set after epoch 48 : Non-relation accuracy: 99% | Relation accuracy: 96% | Tricky accuracy: 0% 
+  Test set after epoch 49 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
+  Test set after epoch 50 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
+
+
+# python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord_{:03d}.pth | tee --append logs/RFS_2item-span-6coord.log
+# grep Test logs/RFS_2item-span-6coord.log 
+
+# For comparison (back to non-tricky stuff to see whether 99/95 beats it)
+# python -u main.py --model=RN  --epochs=50 --seed 10 --template model/{}_{:03d}.pth | tee --append logs/training_RN_seed10.log 
+
