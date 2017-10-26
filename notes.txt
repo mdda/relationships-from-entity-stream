@@ -177,7 +177,8 @@ Ideas:
   
   Teach each question type in turn, building up the curriculum
 
-  Force stream to end in 'STOP' state (look for size of value<eps)
+  EITHER : Force stream to end in 'STOP' state (look for size of value<eps)
+  OR     : Allow stream to drift on-and-on, whereas the 'evaluator' is incentivised to declare early
 
   Investigate processing
     DONE In first batch, find 1 example of each question type

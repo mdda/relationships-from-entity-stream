@@ -220,9 +220,7 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 
 # python -u main.py --model=RN --epochs=50 --template model/{}_tricky2_{:03d}.pth --train_tricky | tee --append logs/training_RN_dataset++_tricky2.log   
   
-#  822  mkdir ~/Personal/logs.tmp/2017-10-25
-#  823  cp logs/training_RN_dataset++_tricky2.log ~/Personal/logs.tmp/2017-10-25/
-#  824  cp model/RN_tricky2_050.pth ~/Personal/logs.tmp/2017-10-25/
-  
 # python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-tricky2.log
-  
+# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 1 --train_tricky --template model/{}_2item-span-seed1-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-seed1-tricky2.log
+## Peformance on norel and birel pretty much the same.  trirel a little worse (50s vs 60) - but should be winning...
+
