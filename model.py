@@ -317,16 +317,24 @@ class RFS(BasicModel):
         self.conv = ConvInputModel()  
         # output is 24 channels in a 5x5 grid
 
+        self.coord_extra_len = args.coord_extra_len
 
         # prepare coord tensor
-        def cvt_coord(i):
-            return [(i/5-2)/2., (i%5-2)/2.]
+        def cvt_coord(idx):
+            i, j = idx/5, idx%5
+            if self.coord_extra_len==2:
+                return [(i-2)/2., (j-2)/2.]
+            if self.coord_extra_len==6:
+                return [
+                  (i-2)/2., (i%2), (1. if (i>0) else 0.), 
+                  (j-2)/2., (j%2), (1. if (j>0) else 0.), 
+                ]
             
-        np_coord_tensor = np.zeros((args.batch_size, 25, 2))
-        for i in range(25):
-            np_coord_tensor[:,i,:] = np.array( cvt_coord(i) )
+        np_coord_tensor = np.zeros((args.batch_size, 25, self.coord_extra_len))
+        for idx in range(25):
+            np_coord_tensor[:,idx,:] = np.array( cvt_coord(idx) )
         
-        coord_tensor = torch.FloatTensor(args.batch_size, 25, 2)
+        coord_tensor = torch.FloatTensor(args.batch_size, 25, self.coord_extra_len)
         if args.cuda:
             coord_tensor = coord_tensor.cuda()
         self.coord_tensor = Variable(coord_tensor)
@@ -339,18 +347,22 @@ class RFS(BasicModel):
         
         self.rnn_hidden_size = args.rnn_hidden_size  # must be > question_size and answer_size
         
-        self.key_size = self.query_size   = 12
-        self.value_size   = 16  # 24+2+2 = key_size + value_size
-
+        # 24+self.coord_extra_len+self.coord_extra_len = key_size + value_size
+        if self.coord_extra_len==2:
+            self.key_size = self.query_size   = 12
+            self.value_size   = 16  
+        else:
+            self.key_size = self.query_size   = 20
+            self.value_size   = 16
 
         self.process_coords = args.process_coords
         if self.process_coords:
             print("Create additional 1x1 convolutions to process coords additionally per point")
             self.coord_tensor_permuted = self.coord_tensor.permute(0,2,1)
             
-            d_in, d_out = 24+2, self.key_size+self.value_size
+            d_in, d_out = 24+self.coord_extra_len, self.key_size+self.value_size
             #print(d_in, d_out)
-            if not (d_out == 24+2+2):
+            if not (d_out == 24+self.coord_extra_len+self.coord_extra_len):
               print("Sizing of coordinate-enhanced 5x5 images does not match additional conv layers")
               exit(1)
             
@@ -373,7 +385,7 @@ class RFS(BasicModel):
 
         #seq_len=8
         #seq_len=4 
-        #seq_len=2 # Works super-well
+        #seq_len=2 # Works well enough to be on a par with RN
         #seq_len=1
         
         self.seq_len = args.seq_len
@@ -471,8 +483,8 @@ class RFS(BasicModel):
             x_flat = x.view(batch_size, n_channels, d*d).permute(0,2,1)
             # x_flat = (64 x 25 x 24)
             
-            ks_nocoords = x_flat.narrow(2, 0, self.key_size-2)
-            vs_nocoords = x_flat.narrow(2, self.key_size-2, self.value_size-2)
+            ks_nocoords = x_flat.narrow(2, 0, self.key_size-self.coord_extra_len)
+            vs_nocoords = x_flat.narrow(2, self.key_size-self.coord_extra_len, self.value_size-self.coord_extra_len)
             
             # add coordinates (since these haven't been included yet)
             ks_image = torch.cat([ks_nocoords, self.coord_tensor], 2)

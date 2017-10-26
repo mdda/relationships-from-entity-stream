@@ -48,6 +48,9 @@ parser.add_argument('--process_coords', action='store_true', default=False,
 parser.add_argument('--seq_len', type=int, default=2, 
                     help='length of entities question and answer streams')
 
+parser.add_argument('--coord_extra_len', type=int, default=2, 
+                    help='size of coordinate information added per position')
+
 #parser.add_argument('--gumbel_temp', type=float, default=-1,
 #                    help='Gumbel temperature (if >0)')
 #parser.add_argument('--gumbel_hurdle', type=float, default=0,
