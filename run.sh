@@ -339,3 +339,6 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
   Test set after epoch 48 : Non-relation accuracy: 99% | Relation accuracy: 92% | Tricky accuracy: 0% 
   Test set after epoch 49 : Non-relation accuracy: 99% | Relation accuracy: 92% | Tricky accuracy: 0% 
   Test set after epoch 50 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
+
+
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-relu_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-relu.log

@@ -522,13 +522,16 @@ class RFS(BasicModel):
           ent_stream_rnn1_hidden = self.ent_stream_rnn1(ent_stream_rnn1_input, ent_stream_rnn1_hidden)
 
           ent_stream_rnn2_hidden = self.ent_stream_rnn2(ent_stream_rnn1_hidden, ent_stream_rnn2_hidden)
-
+          
+          # Test this
+          ent_stream_rnn2_hidden = F.relu(ent_stream_rnn2_hidden)
+          
           ent_stream_logits = ent_stream_rnn2_hidden
           
           if self.debug:
             stream_logits.append( ent_stream_logits )
       
-          # Convert the ent_stream hidden layer to a query
+          # Convert the ent_stream hidden layer to a query via a Linear unit
           qs = self.stream_rnn_to_query( ent_stream_logits )
           #print("qs.size() : ", qs.size())  # (32,12)
 
