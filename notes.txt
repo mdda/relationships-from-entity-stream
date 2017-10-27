@@ -210,6 +210,12 @@ Ideas:
   Create a hard-attention option to use instead of softmax 
   Like 'dropout', use it in a fixed proportion during training, and solely during testing
     Problem with using a 'plain' temperature parameter on top of softmax is that weights will just scale down
+
+  Highway network on outputs GRUs (i.e transform hidden state a bit more before using it)
+  Instead of 'answer' being softmax of hidden state
+    softmax when at 'stop' state
+    softmax over a Highway network of hidden state
+    softmax over a 'element-wise max' of (possibly transformed) hidden states across time
   
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
