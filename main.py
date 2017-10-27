@@ -45,6 +45,9 @@ parser.add_argument('--rnn_hidden_size', type=int, default=32,
 parser.add_argument('--process_coords', action='store_true', default=False,
                     help='Process the coordinates with 1x1 covolutions, instead of just concatting')
 
+parser.add_argument('--highway', type=int, default=0, 
+                    help='add highway network of type (>0)')
+
 parser.add_argument('--seq_len', type=int, default=2, 
                     help='length of entities question and answer streams')
 

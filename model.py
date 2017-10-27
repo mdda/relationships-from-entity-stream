@@ -1,4 +1,5 @@
 import numpy as np
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -309,6 +310,35 @@ class Harden(nn.Module):
 #    grad_input[input < 0] = 0
 #    return grad_input
 
+# https://github.com/kefirski/pytorch_Highway (MIT license)
+class Highway(nn.Module):
+    def __init__(self, size, num_layers, f):
+        super(Highway, self).__init__()
+
+        self.num_layers = num_layers
+        self.nonlinear = nn.ModuleList([nn.Linear(size, size) for _ in range(num_layers)])
+        self.linear = nn.ModuleList([nn.Linear(size, size) for _ in range(num_layers)])
+        self.gate = nn.ModuleList([nn.Linear(size, size) for _ in range(num_layers)])
+        self.f = f
+
+    def forward(self, x):
+        """
+        :param x: tensor with shape of [batch_size, size]
+        :return: tensor with shape of [batch_size, size]
+        applies σ(x) ⨀ (f(G(x))) + (1 - σ(x)) ⨀ (Q(x)) transformation | G and Q is affine transformation,
+        f is non-linear transformation, σ(x) is affine transformation with sigmoid non-linearition
+        and ⨀ is element-wise multiplication
+        """
+
+        for layer in range(self.num_layers):
+            gate = F.sigmoid(self.gate[layer](x))
+
+            nonlinear = self.f(self.nonlinear[layer](x))
+            linear = self.linear[layer](x)
+
+            return gate * nonlinear + (1 - gate) * linear
+
+
 class RFS(BasicModel):
     def __init__(self, args):
         super(RFS, self).__init__(args, 'RFS')
@@ -414,6 +444,14 @@ class RFS(BasicModel):
         
         self.stream_rnn_to_query = nn.Linear(self.rnn_hidden_size, self.query_size)
 
+        self.highway=args.highway
+        
+        if self.highway==1:
+          #self.stream_rnn_switcher = nn.Linear(self.rnn_hidden_size, self.rnn_hidden_size)
+          #self.stream_rnn_extra    = nn.Linear(self.rnn_hidden_size, self.rnn_hidden_size)
+          # Highway(input_size, num_layers, f=torch.nn.functional.relu)
+          self.stream_rnn_highway = Highway(self.rnn_hidden_size, 1, f=F.relu)
+        
         # No parameters needed for softmax attention...  
         # Temperature for Gumbel?
 
@@ -523,8 +561,14 @@ class RFS(BasicModel):
 
           ent_stream_rnn2_hidden = self.ent_stream_rnn2(ent_stream_rnn1_hidden, ent_stream_rnn2_hidden)
           
-          # Test this
-          ent_stream_rnn2_hidden = F.relu(ent_stream_rnn2_hidden)
+          # Works a tiny bit better than without          
+          ent_stream_rnn2_hidden = F.relu(ent_stream_rnn2_hidden)  
+          
+          if self.highway==1:
+            #ent_stream_rnn2_hidden_save = ent_stream_rnn2_hidden
+            #ent_stream_rnn2_hidden = ent_stream_rnn2_hidden_save
+            
+            ent_stream_rnn2_hidden = self.stream_rnn_highway(ent_stream_rnn2_hidden) 
           
           ent_stream_logits = ent_stream_rnn2_hidden
           

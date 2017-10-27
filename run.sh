@@ -342,3 +342,8 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 
 
 python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-relu_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-relu.log
+# Seems to work
+
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --template model/{}_2item-span-seed10-6coord-highway1_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-highway1.log
+
+
