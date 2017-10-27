@@ -564,10 +564,11 @@ class RFS(BasicModel):
           # Works a tiny bit better than without          
           ent_stream_rnn2_hidden = F.relu(ent_stream_rnn2_hidden)  
           
-          if self.highway==1:
+          if self.highway==1: 
             #ent_stream_rnn2_hidden_save = ent_stream_rnn2_hidden
             #ent_stream_rnn2_hidden = ent_stream_rnn2_hidden_save
             
+            # this seems to get stuck...
             ent_stream_rnn2_hidden = self.stream_rnn_highway(ent_stream_rnn2_hidden) 
           
           ent_stream_logits = ent_stream_rnn2_hidden
