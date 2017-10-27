@@ -617,6 +617,8 @@ class RFS(BasicModel):
         stream_answer_hidden   = self.stream_answer_hidden.expand( (batch_size, self.rnn_hidden_size) )
         #print("stream_answer_hidden0", stream_answer_hidden)
         
+        stream_answer_hidden_arr = []
+        
         for stream_question_rnn_input in stream_values:
           #print("stream_question_rnn_input.size() : ", stream_question_rnn_input.size())  # (32,16)
           #print("stream_question_hidden.size() : ", stream_question_hidden.size())  # (32,16)
@@ -627,11 +629,20 @@ class RFS(BasicModel):
           stream_answer_hidden   = self.stream_answer_rnn(stream_question_hidden, stream_answer_hidden)
           #print("stream_answer_hidden", stream_answer_hidden)
           
+          stream_answer_hidden_arr.append( stream_answer_hidden )
+          
         # Final answer is in stream_answer_hidden (final value)
         #ans = stream_answer_hidden.narrow(1, 0, self.answer_size)  # No: Let's do a final linear on it...
         #print("ans.size() : ", ans.size())  # (32,10)
 
-        ans = self.stream_answer_to_output( stream_answer_hidden )
+        if self.highway==2:  # [][32batch, 32hidden]
+          stream_answer_hidden_max = torch.cat( stream_answer_hidden_arr, 1)
+          #print("stream_answer_hidden_max.size() : ", stream_answer_hidden_max.size())  # (32,32)
+          #ans = self.stream_answer_to_output(  )
+          
+          ans = self.stream_answer_to_output( stream_answer_hidden )  # Temp
+        else:
+          ans = self.stream_answer_to_output( stream_answer_hidden )
 
         if self.debug:
           self.stream_logits = stream_logits
