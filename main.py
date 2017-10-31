@@ -16,11 +16,12 @@ import torch
 from torch.autograd import Variable
 
 from model import RN, CNN_MLP, RFS
+from model_hard import RFSH
 
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Relations-from-Stream sort-of-CLVR Example')
-parser.add_argument('--model', type=str, choices=['RN', 'CNN_MLP', 'RFS'], default='RN', 
+parser.add_argument('--model', type=str, choices=['RN', 'CNN_MLP', 'RFS', 'RFSH'], default='RN', 
                     help='model type')
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
@@ -54,16 +55,18 @@ parser.add_argument('--seq_len', type=int, default=2,
 parser.add_argument('--coord_extra_len', type=int, default=2, 
                     help='size of coordinate information added per position')
 
-#parser.add_argument('--gumbel_temp', type=float, default=-1,
-#                    help='Gumbel temperature (if >0)')
-#parser.add_argument('--gumbel_hurdle', type=float, default=0,
-#                    help='Multiply temperature by 90%% if training is over this hurdle')
-
 parser.add_argument('--train_tricky', action='store_true', default=False,
                     help='Also learn the additional "tricky relationships"')
 
 parser.add_argument('--debug', action='store_true', default=False,
                     help='Stores interim results in the model for external examination')
+
+# Extras for 'Hard Attention' model(s)
+#parser.add_argument('--gumbel_temp', type=float, default=-1,
+#                    help='Gumbel temperature (if >0)')
+#parser.add_argument('--gumbel_hurdle', type=float, default=0,
+#                    help='Multiply temperature by 90%% if training is over this hurdle')
+
 
 args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
@@ -76,6 +79,8 @@ if args.cuda:
 
 if args.model=='RFS': 
   model = RFS(args)
+elif args.model=='RFHS': 
+  model = RFHS(args)
 elif args.model=='CNN_MLP': 
   model = CNN_MLP(args)
 else:

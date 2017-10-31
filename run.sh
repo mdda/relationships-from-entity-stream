@@ -341,9 +341,15 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
   Test set after epoch 50 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
 
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-relu_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-relu.log
-# Seems to work
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-relu_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-relu.log
+# Seems to work slightly better
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --template model/{}_2item-span-seed10-6coord-highway1_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-highway1.log
+#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --template model/{}_2item-span-seed10-6coord-highway1_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-highway1.log
+# Works, but not clear that much is gained by adding highway network
 
+python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --train_tricky --template model/{}_2item-span-seed10-6coord-highway1-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-highway1-tricky2.log
+# Again, seems to get stuck like when ReLU was before the highway unit : Perhaps it's a seed (i.e. robustness) problem.  :: NOT CONVINCING
+
+
+python -u main.py --model=RFSH --epochs=5 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord_{:03d}.pth | tee --append logs/RFSH_2item-span-6coord.log
 

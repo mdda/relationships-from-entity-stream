@@ -211,7 +211,12 @@ Ideas:
   Like 'dropout', use it in a fixed proportion during training, and solely during testing
     Problem with using a 'plain' temperature parameter on top of softmax is that weights will just scale down
 
-  Highway network on outputs GRUs (i.e transform hidden state a bit more before using it)
+  Highway network on output GRUs (i.e transform hidden state a bit more before using it)
+    DONE  No benefit found when added onto stream gru hidden states to produce queries
+    ?? Beneficial to add to end of answer gru hidden states
+  
+  TEST : Add ReLU to answer output before softmax
+    
   Instead of 'answer' being softmax of hidden state
     softmax when at 'stop' state
     softmax over a Highway network of hidden state ( p3 of https://arxiv.org/pdf/1508.06615.pdf )
