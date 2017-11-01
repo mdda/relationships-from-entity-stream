@@ -232,5 +232,5 @@ https://nips.cc/Conferences/2017/Schedule?type=Workshop
     https://sites.google.com/view/hrlnips2017/call-for-papers
   Learning Disentangled Representations
     https://sites.google.com/view/disentanglenips2017
-  Visually-Grounded Interaction and Language (ViGIL)
+  Visually-Grounded Interaction and Language (ViGIL) # Confirmed that there's no need to 'blind' the submission on/by 17-Nov
     https://nips2017vigil.github.io/
