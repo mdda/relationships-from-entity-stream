@@ -223,6 +223,8 @@ Ideas:
       z = t # g(WH.y + bH) + (1 − t) # y  ( where t = σ(WT.y + bT ), and bT~(-2) )
     softmax over a 'element-wise max' of (possibly transformed) hidden states across time
   
+  Check out "Self-critical Sequence Training for Image Captioning"
+    https://github.com/ruotianluo/self-critical.pytorch
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
 # Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
@@ -234,3 +236,4 @@ https://nips.cc/Conferences/2017/Schedule?type=Workshop
     https://sites.google.com/view/disentanglenips2017
   Visually-Grounded Interaction and Language (ViGIL) # Confirmed that there's no need to 'blind' the submission on/by 17-Nov
     https://nips2017vigil.github.io/
+
