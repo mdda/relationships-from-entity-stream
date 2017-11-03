@@ -15,9 +15,6 @@ import numpy as np
 import torch
 from torch.autograd import Variable
 
-from model import RN, CNN_MLP, RFS
-from model_hard import RFSH
-
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Relations-from-Stream sort-of-CLVR Example')
@@ -69,16 +66,23 @@ parser.add_argument('--debug', action='store_true', default=False,
 
 
 args = parser.parse_args()
+
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 #print(args.seq_len)
 
-args.dtype = torch.cuda.FloatTensor if args.cuda else torch.FloatTensor
-
-np.random.seed(args.seed)
-torch.manual_seed(args.seed)
 if args.cuda:
     print("Running with GPU enabled")
-    torch.cuda.manual_seed(args.seed)
+
+args.dtype = torch.cuda.FloatTensor if args.cuda else torch.FloatTensor
+
+random.seed(args.seed)
+np.random.seed(args.seed)
+torch.manual_seed(args.seed)
+torch.cuda.manual_seed_all(args.seed)  # Safe even if no GPU
+
+
+from model import RN, CNN_MLP, RFS
+from model_hard import RFSH
 
 if args.model=='RFS': 
   model = RFS(args)
@@ -88,6 +92,7 @@ elif args.model=='CNN_MLP':
   model = CNN_MLP(args)
 else:
   model = RN(args)
+
 
 # For loading the data (possibly a symlink to relational-networks/data)
 data_dirs = './data'
