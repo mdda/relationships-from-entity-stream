@@ -72,6 +72,9 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 #print(args.seq_len)
 
+args.dtype = torch.cuda.FloatTensor if args.cuda else torch.FloatTensor
+
+np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if args.cuda:
     print("Running with GPU enabled")

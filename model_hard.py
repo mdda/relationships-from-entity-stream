@@ -126,6 +126,7 @@ class RFSH(BasicModel):
     def __init__(self, args):
         super(RFSH, self).__init__(args, 'RFSH')
         self.debug = args.debug
+        dtype = args.dtype
         
         self.conv = ConvInputModel()  
         # output is 24 channels in a 5x5 grid
@@ -147,10 +148,7 @@ class RFSH(BasicModel):
         for idx in range(25):
             np_coord_tensor[:,idx,:] = np.array( cvt_coord(idx) )
         
-        coord_tensor = torch.FloatTensor(args.batch_size, 25, self.coord_extra_len)
-        if args.cuda:
-            coord_tensor = coord_tensor.cuda()
-        self.coord_tensor = Variable(coord_tensor)
+        self.coord_tensor = Variable( torch.FloatTensor(args.batch_size, 25, self.coord_extra_len).type(dtype) )
         
         self.coord_tensor.data.copy_(torch.from_numpy(np_coord_tensor))
 
@@ -186,14 +184,10 @@ class RFSH(BasicModel):
             self.batchNorm2 = nn.BatchNorm2d(d_out)
 
 
-        k_blank = torch.randn( (1, 1, self.key_size) )
-        if args.cuda:
-            k_blank = k_blank.cuda()
+        k_blank = torch.randn( (1, 1, self.key_size) ).type(dtype)
         self.k_blank = Parameter(k_blank, requires_grad=True)
 
-        v_blank = torch.zeros( (1, 1, self.value_size) )
-        if args.cuda:
-            v_blank = v_blank.cuda()
+        v_blank = torch.zeros( (1, 1, self.value_size) ).type(dtype)
         self.v_blank = Variable(v_blank, requires_grad=False)  # This is just fixed at ==0 == 'STOP'
 
         #seq_len=8
@@ -204,23 +198,17 @@ class RFSH(BasicModel):
         self.seq_len = args.seq_len
         
 
-        ent_stream_rnn1_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) )
-        if args.cuda:
-            ent_stream_rnn1_hidden_pad = ent_stream_rnn1_hidden_pad.cuda()
+        ent_stream_rnn1_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) ).type(dtype)
         self.ent_stream_rnn1_hidden_pad = Parameter(ent_stream_rnn1_hidden_pad, requires_grad=True)
         #print("ent_stream_rnn1_hidden_pad.size() : ", self.ent_stream_rnn1_hidden_pad.size())  # (5)
 
-        ent_stream_rnn1_start = torch.randn( (1, self.value_size) )  
-        if args.cuda:
-            ent_stream_rnn1_start = ent_stream_rnn1_start.cuda()
+        ent_stream_rnn1_start = torch.randn( (1, self.value_size) ).type(dtype)
         self.ent_stream_rnn1_start = Parameter(ent_stream_rnn1_start, requires_grad=True)
 
         self.ent_stream_rnn1 = nn.GRUCell(self.value_size, self.rnn_hidden_size)   #input_size, hidden_size, bias=True)
 
 
-        ent_stream_rnn2_hidden = torch.randn( (1, self.rnn_hidden_size) )
-        if args.cuda:
-            ent_stream_rnn2_hidden = ent_stream_rnn2_hidden.cuda()
+        ent_stream_rnn2_hidden = torch.randn( (1, self.rnn_hidden_size) ).type(dtype)
         self.ent_stream_rnn2_hidden = Parameter(ent_stream_rnn2_hidden, requires_grad=True)
 
         self.ent_stream_rnn2 = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)   #input_size, hidden_size, bias=True)
@@ -239,16 +227,12 @@ class RFSH(BasicModel):
         # Temperature for Gumbel?
 
 
-        stream_question_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) )
-        if args.cuda:
-            stream_question_hidden_pad = stream_question_hidden_pad.cuda()
+        stream_question_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) ).type(dtype)
         self.stream_question_hidden_pad = Parameter(stream_question_hidden_pad, requires_grad=True)
 
         self.stream_question_rnn = nn.GRUCell(self.value_size, self.rnn_hidden_size)
 
-        stream_answer_hidden   = torch.randn( (1, self.rnn_hidden_size) )
-        if args.cuda:
-            stream_answer_hidden = stream_answer_hidden.cuda()
+        stream_answer_hidden   = torch.randn( (1, self.rnn_hidden_size) ).type(dtype)
         self.stream_answer_hidden = Parameter(stream_answer_hidden, requires_grad=True)
 
         self.stream_answer_rnn   = nn.GRUCell(self.rnn_hidden_size, self.rnn_hidden_size)
