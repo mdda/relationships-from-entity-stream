@@ -160,11 +160,11 @@ class RFSH(BasicModel):
         
         # 24+self.coord_extra_len+self.coord_extra_len = key_size + value_size
         if self.coord_extra_len==2:
-            self.key_size = self.query_size   = 12
-            self.value_size   = 16  
-        else:
-            self.key_size = self.query_size   = 20
-            self.value_size   = 16
+            self.key_size = self.query_size   = 10+2
+            self.value_size   = 14+2  
+        else:  # coord_extra_len likely to be 6...
+            self.key_size = self.query_size   = 14+6
+            self.value_size   = 10+6
 
         self.process_coords = args.process_coords
         if self.process_coords:
