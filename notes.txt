@@ -225,7 +225,7 @@ Ideas:
   
   Check out "Self-critical Sequence Training for Image Captioning"
     https://github.com/ruotianluo/self-critical.pytorch
-    
+    https://github.com/ruotianluo/self-critical.pytorch/blob/master/misc/rewards.py#L31
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
 # Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
