@@ -229,6 +229,8 @@ Ideas:
       https://github.com/ruotianluo/self-critical.pytorch/blob/master/misc/rewards.py#L31
     model.sample
       https://github.com/ruotianluo/self-critical.pytorch/blob/master/models/FCModel.py#L153
+    torch.multinomial : Just the function we need...  it=index_timet, xt=x_timet
+      https://github.com/ruotianluo/self-critical.pytorch/blob/master/models/FCModel.py#L179
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
 # Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
