@@ -231,6 +231,13 @@ Ideas:
       https://github.com/ruotianluo/self-critical.pytorch/blob/master/models/FCModel.py#L153
     torch.multinomial : Just the function we need...  it=index_timet, xt=x_timet
       https://github.com/ruotianluo/self-critical.pytorch/blob/master/models/FCModel.py#L179
+    similarly : 
+      https://github.com/ruotianluo/self-critical.pytorch/blob/master/models/AttModel.py#L87
+      
+      
+  Other PyTorch example code
+    Implicit teacher forcing (i.e. not relevant here)
+      https://github.com/pytorch/tutorials/blob/master/intermediate_source/char_rnn_generation_tutorial.py#L277
 
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
 # Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
