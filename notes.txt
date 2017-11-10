@@ -247,6 +247,12 @@ Ideas:
       Vary X so that soft vs hard attention can be examined, etc
 
 
+  Vision / saccades : 
+    http://bair.berkeley.edu/blog/2017/11/09/learn-to-attend-fovea/
+
+
+
+
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
 # Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
 
