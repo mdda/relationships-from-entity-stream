@@ -239,6 +239,14 @@ Ideas:
     Implicit teacher forcing (i.e. not relevant here)
       https://github.com/pytorch/tutorials/blob/master/intermediate_source/char_rnn_generation_tutorial.py#L277
 
+  **Should read : https://reinforce.io/blog/end-to-end-computation-graphs-for-reinforcement-learning/
+  
+  **Experiment
+    Numeric input 0,1,2,3,4 one-hot encoded maps to same as output
+      Input -> Linear -> SoftMax -> X -> Output
+      Vary X so that soft vs hard attention can be examined, etc
+
+
 # 760 GTX           : 2258 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_700_series
 # Titan X (Maxwell) : 6144 GFLOPS  # https://en.wikipedia.org/wiki/GeForce_900_series
 
