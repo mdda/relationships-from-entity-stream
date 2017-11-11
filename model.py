@@ -64,6 +64,7 @@ class BasicModel(nn.Module):
         self.name=name
 
     def train_(self, input_img, input_qst, label):
+        self.train()
         self.optimizer.zero_grad()
         output = self(input_img, input_qst)
         loss = F.nll_loss(output, label)
@@ -75,6 +76,7 @@ class BasicModel(nn.Module):
         return accuracy
         
     def test_(self, input_img, input_qst, label):
+        self.eval()
         output = self(input_img, input_qst)
         pred = output.data.max(1)[1]
         correct = pred.eq(label.data).cpu().sum()

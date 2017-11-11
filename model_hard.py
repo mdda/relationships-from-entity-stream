@@ -355,23 +355,43 @@ class RFSH(BasicModel):
           # Now do the dot-product with the keys (flattened image-like)
           ent_similarity = torch.bmm( ks, torch.unsqueeze(qs, 2) )
           #print("ent_similarity.size() : ", ent_similarity.size())  # (32,26,1)
-
+  
+          ent_logits = torch.squeeze( ent_similarity )
+          
           if self.debug:
-            ent_similarities.append( torch.squeeze( ent_similarity) )
+            ent_similarities.append( ent_logits )
 
-          if True:
-            # Softmax to get the weights
-            #ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )  #WORKED
-            ent_weights = F.softmax( torch.squeeze( ent_similarity) )
-            
-          if False:
-            # Gumbel-Softmax to get the weights:
-            ent_weights = gumbel_softmax_sample( torch.squeeze( ent_similarity), temperature=0.2 )
+
+          #if True:
+          #  # Softmax to get the weights
+          #  #ent_weights = torch.nn.Softmax()( torch.squeeze( ent_similarity) )  #WORKED
+          #  ent_weights = F.softmax( torch.squeeze( ent_similarity) )
+          #  
+          #if False:
+          #  # Gumbel-Softmax to get the weights:
+          #  ent_weights = gumbel_softmax_sample( torch.squeeze( ent_similarity), temperature=0.2 )
             
           #print("ent_weights.size() : ", ent_weights.size())  # (32,26)
           #print("ent_weights.unsqueeze(2).size() : ", torch.unsqueeze(ent_weights,2).size())  # (32,26,1)  
           #print("ent_weights.unsqueeze(1).size() : ", torch.unsqueeze(ent_weights,1).size())  # (32,1,26)
 
+
+          # ent_weights is like 'actions' derived from the 'soft' ent_logits (see Minimal-Soft-vs-Hard-Max notebook)
+          action_weights = ent_logits.clone()
+  
+          adjusted_actions = ent_logits
+          if self.training:
+            gumbel = sample_gumbel( ent_logits )
+            adjusted_actions +=  gumbel * 1.0
+
+          action_max, action_idx = torch.max(adjusted_actions, 1, keepdim=True)
+          
+          action_weights[:,:] = 0.
+          action_weights.scatter_(1, action_idx, action_max)
+          
+          ent_weights = F.softmax( action_weights )
+          #print(ent_weights)          
+          
           
           # Now multiply through to get the resulting values
           stream_next_value = torch.squeeze( torch.bmm( torch.unsqueeze(ent_weights,1), vs ) )
