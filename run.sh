@@ -353,3 +353,5 @@ python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coor
 
 python -u main.py --model=RFSH --epochs=1 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-fuzz1.0_{:03d}.pth | tee --append logs/RFSH_2item-span-6coord-fuzz1.0.log
 
+python -u main.py --model=RFSH --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-fuzz1.0-emph2.0_{:03d}.pth | tee --append logs/RFSH_2item-span-6coord-fuzz1.0-emph2.0.log
+

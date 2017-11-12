@@ -86,13 +86,14 @@ from model_hard import RFSH
 
 if args.model=='RFS': 
   model = RFS(args)
-elif args.model=='RFHS': 
-  model = RFHS(args)
+elif args.model=='RFSH': 
+  model = RFSH(args)
 elif args.model=='CNN_MLP': 
   model = CNN_MLP(args)
 else:
   model = RN(args)
 
+print(args)
 
 # For loading the data (possibly a symlink to relational-networks/data)
 data_dirs = './data'

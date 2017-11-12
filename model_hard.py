@@ -226,7 +226,7 @@ class RFSH(BasicModel):
         # No parameters needed for softmax attention...  
         # Temperature for Gumbel?
 
-
+        
         stream_question_hidden_pad = torch.randn( (1, self.rnn_hidden_size-self.question_size) ).type(dtype)
         self.stream_question_hidden_pad = Parameter(stream_question_hidden_pad, requires_grad=True)
 
@@ -375,19 +375,27 @@ class RFSH(BasicModel):
           #print("ent_weights.unsqueeze(2).size() : ", torch.unsqueeze(ent_weights,2).size())  # (32,26,1)  
           #print("ent_weights.unsqueeze(1).size() : ", torch.unsqueeze(ent_weights,1).size())  # (32,1,26)
 
-
           # ent_weights is like 'actions' derived from the 'soft' ent_logits (see Minimal-Soft-vs-Hard-Max notebook)
-          action_weights = ent_logits.clone()
-  
-          adjusted_actions = ent_logits
+          
+          adjusted_actions = ent_logits.clone()
           if self.training:
             gumbel = sample_gumbel( ent_logits )
             adjusted_actions +=  gumbel * 1.0
 
-          action_max, action_idx = torch.max(adjusted_actions, 1, keepdim=True)
+          action_max, action_max_idx = torch.max(adjusted_actions, 1, keepdim=True)
+          if True:
+            # This has a min of zero, which leads to the possibility of a 'near-zero everywhere' choice for the max
+            action_weights = ent_logits.clone()  # Just to get the shape
+            action_weights[:,:] = 0.
+            action_weights.scatter_(1, action_max_idx, action_max+2.0)  # Force e^2 extra emphasis
+
+          if False:
+            action_min, action_min_idx = torch.min(adjusted_actions, 1, keepdim=True)
           
-          action_weights[:,:] = 0.
-          action_weights.scatter_(1, action_idx, action_max)
+            # Enforce the min to be everywhere, so the max 'sticks out' more
+            action_weights = action_min.expand(  (batch_size, vs.size()[1]) ).clone()
+            #print(action_weights.size(), action_min.size())
+            action_weights.scatter_(1, action_max_idx, action_max)
           
           ent_weights = F.softmax( action_weights )
           #print(ent_weights)          
