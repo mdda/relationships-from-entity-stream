@@ -446,7 +446,7 @@ class RFS(BasicModel):
         ent_stream_rnn1_input  = self.ent_stream_rnn1_start.expand(  (batch_size, self.value_size) )
         ent_stream_rnn2_hidden = self.ent_stream_rnn2_hidden.expand( (batch_size, self.rnn_hidden_size) )
         
-        stream_logits, ent_similarities, stream_values = [],[],[] # Will be filled by RNN and attention process
+        stream_logits, ent_similarities, ent_weights_arr, stream_values = [],[],[],[] # Will be filled by RNN and attention process
         for i in range(seq_len):
           #print("ent_stream_rnn_input.size()  : ", ent_stream_rnn_input.size())   # (32,16)
           #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
@@ -498,6 +498,9 @@ class RFS(BasicModel):
           #print("ent_weights.unsqueeze(2).size() : ", torch.unsqueeze(ent_weights,2).size())  # (32,26,1)  
           #print("ent_weights.unsqueeze(1).size() : ", torch.unsqueeze(ent_weights,1).size())  # (32,1,26)
 
+          if self.debug:
+            ent_weights_arr.append( ent_weights )
+
           
           # Now multiply through to get the resulting values
           stream_next_value = torch.squeeze( torch.bmm( torch.unsqueeze(ent_weights,1), vs ) )
@@ -544,6 +547,7 @@ class RFS(BasicModel):
         if self.debug:
           self.stream_logits = stream_logits
           self.ent_similarities = ent_similarities
+          self.ent_weights_arr = ent_weights_arr
           self.stream_values = stream_values
           self.ans_logits = ans
         
