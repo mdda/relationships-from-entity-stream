@@ -387,7 +387,7 @@ class RFSH(BasicModel):
             # This has a min of zero, which leads to the possibility of a 'near-zero everywhere' choice for the max
             action_weights = ent_logits.clone()  # Just to get the shape
             action_weights[:,:] = 0.
-            action_weights.scatter_(1, action_max_idx, action_max+2.0)  # Force e^2 extra emphasis
+            action_weights.scatter_(1, action_max_idx, action_max+5.0)  # Force e^5 extra emphasis
 
           if False:
             action_min, action_min_idx = torch.min(adjusted_actions, 1, keepdim=True)
