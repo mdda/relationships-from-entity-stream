@@ -245,6 +245,10 @@ class RFSH(BasicModel):
         self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
 
 
+        self.question_to_query_1 = nn.Linear(self.question_size, self.rnn_hidden_size)
+        self.question_to_query_2 = nn.Linear(self.rnn_hidden_size, self.query_size)
+
+
     def forward(self, img, qst):
         x = self.conv(img) ## x = (64 x 24 x 5 x 5) = (batch#, channels, x-s, y-s)
         
@@ -321,7 +325,8 @@ class RFSH(BasicModel):
         ent_stream_rnn2_hidden = self.ent_stream_rnn2_hidden.expand( (batch_size, self.rnn_hidden_size) )
         
         stream_logits, ent_similarities, ent_weights_arr, stream_values = [],[],[],[] # Will be filled by RNN and attention process
-        for i in range(seq_len):
+        #for i in range(seq_len):  # HUGE CHANGE
+        if False:
           #print("ent_stream_rnn_input.size()  : ", ent_stream_rnn_input.size())   # (32,16)
           #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
           ent_stream_rnn1_hidden = self.ent_stream_rnn1(ent_stream_rnn1_input, ent_stream_rnn1_hidden)
@@ -393,7 +398,8 @@ class RFSH(BasicModel):
             action_min, action_min_idx = torch.min(adjusted_actions, 1, keepdim=True)
           
             # Enforce the min to be everywhere, so the max 'sticks out' more
-            action_weights = action_min.expand(  (batch_size, vs.size()[1]) ).clone()
+            #action_weights = action_min.expand(  (batch_size, vs.size()[1]) ).clone()
+            action_weights = action_min.expand(  (batch_size, self.value_size) ).clone()
             #print(action_weights.size(), action_min.size())
             action_weights.scatter_(1, action_max_idx, action_max)
           
@@ -410,6 +416,57 @@ class RFSH(BasicModel):
           
           stream_values.append(stream_next_value)
           ent_stream_rnn1_input = stream_next_value
+
+          ### Entity stream now in stream_values[] as a list of vectors of length self.value_size
+          # HUGE CHANGE END
+        
+        if True: # HUGE CHANGE ALTERNATIVE
+          # Convert the question to something like a query
+          # Dot the query with all the ks
+          # Find the list of all the best k_indexes
+          # Convert those k_indexes to vs (pushing them onto stream_values[], initialized to be empty)
+
+          hid1 = self.question_to_query_1( qst )
+          hid1_out = F.relu( hid1 )
+          qs = self.question_to_query_2( hid1_out )
+          
+          ent_similarity = torch.bmm( ks, torch.unsqueeze(qs, 2) )      # batch_size, 26, 1
+          ent_logits = torch.squeeze( ent_similarity )                  # batch_size, 26
+          #print("ent_logits.size() : ", ent_logits.size())  # batch_size, 26
+          
+          # torch.topk(input, k, dim=None, largest=True, sorted=True, out=None) -> (Tensor, LongTensor)
+          query_matches_mat, query_matches_idx = torch.topk(ent_logits, seq_len)
+          #print("query_matches_idx.size() : ", query_matches_idx.size())  # batch_size, seq_len
+          #print(query_matches_idx[0]) # Numbers in range [0, 25+1)
+          
+          #print("vs.size() : ", vs.size())  # batch_size, 26, 16
+          #vs_at_idxs = torch.gather( vs, 1, query_matches_idx )
+          #print("vs_at_idxs.size() : ", vs_at_idxs.size())  # 
+          
+          stream_values=[]
+          view_unrolled = torch.arange(0, batch_size*26, 26).type(torch.LongTensor)
+          #print("view_unrolled", view_unrolled)
+          for i in range(seq_len):
+            idxs = query_matches_idx[:, i]  # every index across the batch
+            #print("vs.size() : ", vs.size())  # batch_size, 26, value_size
+            #print("idxs.size() : ", idxs.size())  # batch_size
+            #print("idxs : ", idxs)  # torch.cuda.LongTensor
+            #vs_at_idxs = vs[:, idxs.cpu(), :]  #?? Fails
+            
+            #vs_at_idxs = torch.index_select( vs, 1, idxs )
+            #print("vs_at_idxs.size() : ", vs_at_idxs.size())  # batch_size, vs_size   #[32, 32, 16]??
+            
+            # Test idea : b = torch.Tensor([[[1,101],[2,102],[12,112]],[[3,103],[4,104],[34,134]],[[5,105],[6,106],[56,156]]])
+            idxs_unrolled = torch.add(idxs, view_unrolled) # .cuda()
+            print("idxs_unrolled", idxs_unrolled)
+            vs_at_idxs = torch.index_select( vs.view(batch_size*26, self.value_size), 1, idx_unrolled )
+            #print("vs_at_idxs.size() : ", vs_at_idxs.size())  # batch_size, vs_size
+            
+            stream_values.append( vs_at_idxs )
+         
+          # HUGE CHANGE ALTERNATIVE END
+
+
 
 
         # Now interpret the values from the stream
