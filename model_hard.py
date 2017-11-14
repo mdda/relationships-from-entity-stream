@@ -146,7 +146,7 @@ class RFSH(BasicModel):
             
         np_coord_tensor = np.zeros((args.batch_size, 25, self.coord_extra_len))
         for idx in range(25):
-            np_coord_tensor[:,idx,:] = np.array( cvt_coord(idx) )
+            np_coord_tensor[:,idx,:] = np.array( cvt_coord(idx) ) / 10.
         
         self.coord_tensor = Variable( torch.FloatTensor(args.batch_size, 25, self.coord_extra_len).type(dtype) )
         
@@ -244,9 +244,9 @@ class RFSH(BasicModel):
         
         self.optimizer = optim.Adam(self.parameters(), lr=args.lr)
 
-
-        self.question_to_query_1 = nn.Linear(self.question_size, self.rnn_hidden_size)
-        self.question_to_query_2 = nn.Linear(self.rnn_hidden_size, self.query_size)
+        if False:
+          self.question_to_query_1 = nn.Linear(self.question_size, self.rnn_hidden_size)
+          self.question_to_query_2 = nn.Linear(self.rnn_hidden_size, self.query_size)
 
 
     def forward(self, img, qst):
@@ -325,8 +325,9 @@ class RFSH(BasicModel):
         ent_stream_rnn2_hidden = self.ent_stream_rnn2_hidden.expand( (batch_size, self.rnn_hidden_size) )
         
         stream_logits, ent_similarities, ent_weights_arr, stream_values = [],[],[],[] # Will be filled by RNN and attention process
-        #for i in range(seq_len):  # HUGE CHANGE
-        if False:
+        
+        for i in range(seq_len):  # HUGE CHANGE
+        #if False:
           #print("ent_stream_rnn_input.size()  : ", ent_stream_rnn_input.size())   # (32,16)
           #print("ent_stream_rnn_hidden.size() : ", ent_stream_rnn_hidden.size())  # (32,16)
           ent_stream_rnn1_hidden = self.ent_stream_rnn1(ent_stream_rnn1_input, ent_stream_rnn1_hidden)
@@ -363,6 +364,9 @@ class RFSH(BasicModel):
   
           ent_logits = torch.squeeze( ent_similarity )
           
+          # These are zero-centered, but not variance squashed
+          #ent_logits = ent_logits - torch.mean( ent_logits, 1, keepdim=True)
+          
           if self.debug:
             ent_similarities.append( ent_logits )
 
@@ -381,27 +385,38 @@ class RFSH(BasicModel):
           #print("ent_weights.unsqueeze(1).size() : ", torch.unsqueeze(ent_weights,1).size())  # (32,1,26)
 
           # ent_weights is like 'actions' derived from the 'soft' ent_logits (see Minimal-Soft-vs-Hard-Max notebook)
+
           
           adjusted_actions = ent_logits.clone()
           if self.training:
             gumbel = sample_gumbel( ent_logits )
-            adjusted_actions +=  gumbel * 1.0
+            adjusted_actions += gumbel * 1.0
+          else:
+            action_max, action_max_idx = torch.max(adjusted_actions, 1, keepdim=True)
+            adjusted_actions[:,:] = 0.
+            adjusted_actions.scatter_(1, action_max_idx, 5.0)  # This is just 1 at the argmax (no need for differentiability
 
-          action_max, action_max_idx = torch.max(adjusted_actions, 1, keepdim=True)
-          if True:
-            # This has a min of zero, which leads to the possibility of a 'near-zero everywhere' choice for the max
-            action_weights = ent_logits.clone()  # Just to get the shape
-            action_weights[:,:] = 0.
-            action_weights.scatter_(1, action_max_idx, action_max+5.0)  # Force e^5 extra emphasis
+          if True:  # 'plain'          
+            action_weights = adjusted_actions
+
+
 
           if False:
-            action_min, action_min_idx = torch.min(adjusted_actions, 1, keepdim=True)
-          
-            # Enforce the min to be everywhere, so the max 'sticks out' more
-            #action_weights = action_min.expand(  (batch_size, vs.size()[1]) ).clone()
-            action_weights = action_min.expand(  (batch_size, self.value_size) ).clone()
-            #print(action_weights.size(), action_min.size())
-            action_weights.scatter_(1, action_max_idx, action_max)
+            action_max, action_max_idx = torch.max(adjusted_actions, 1, keepdim=True)
+            if False:
+              # This has a min of zero, which leads to the possibility of a 'near-zero everywhere' choice for the max
+              action_weights = ent_logits.clone()  # Just to get the shape
+              action_weights[:,:] = 0.
+              action_weights.scatter_(1, action_max_idx, action_max+5.0)  # Force e^5 extra emphasis
+
+            if False:
+              action_min, action_min_idx = torch.min(adjusted_actions, 1, keepdim=True)
+            
+              # Enforce the min to be everywhere, so the max 'sticks out' more
+              #action_weights = action_min.expand(  (batch_size, vs.size()[1]) ).clone()
+              action_weights = action_min.expand(  (batch_size, self.value_size) ).clone()
+              #print(action_weights.size(), action_min.size())
+              action_weights.scatter_(1, action_max_idx, action_max)
           
           ent_weights = F.softmax( action_weights )
           #print(ent_weights)          
@@ -420,7 +435,7 @@ class RFSH(BasicModel):
           ### Entity stream now in stream_values[] as a list of vectors of length self.value_size
           # HUGE CHANGE END
         
-        if True: # HUGE CHANGE ALTERNATIVE
+        if False: # HUGE CHANGE ALTERNATIVE
           # Convert the question to something like a query
           # Dot the query with all the ks
           # Find the list of all the best k_indexes
