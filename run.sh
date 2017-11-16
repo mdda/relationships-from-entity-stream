@@ -511,3 +511,6 @@ python -u main.py --model=RFSH --epochs=150 --lr=0.001 --seq_len=6 --rnn_hidden_
   Test set after epoch 149 : Non-relation accuracy: 98% | Relation accuracy: 81% | Tricky accuracy: 0% 
   Test set after epoch 150 : Non-relation accuracy: 99% | Relation accuracy: 79% | Tricky accuracy: 0% 
 
+python -u main.py --model=RFSH --epochs=500 --lr=0.001 --seq_len=6 --rnn_hidden_size=64 --coord_extra_len=6 --resume 0 --seed 11 --template model/{}_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest_{:03d}.pth | tee --append logs/RFSH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest.log
+
+python -u main.py --model=RFSH --epochs=500 --lr=0.001 --seq_len=6 --rnn_hidden_size=64 --coord_extra_len=6 --resume 0 --seed 11 --train_tricky --template model/{}_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest-tricky_{:03d}.pth | tee --append logs/RFSH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest-tricky.log
