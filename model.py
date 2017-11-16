@@ -63,7 +63,7 @@ class BasicModel(nn.Module):
         super(BasicModel, self).__init__()
         self.name=name
 
-    def train_(self, input_img, input_qst, label):
+    def train_regular(self, input_img, input_qst, label):
         self.train()
         self.optimizer.zero_grad()
         output = self(input_img, input_qst)
@@ -74,6 +74,32 @@ class BasicModel(nn.Module):
         correct = pred.eq(label.data).cpu().sum()
         accuracy = correct * 100. / len(label)
         return accuracy
+
+    def train_SCST(self, input_img, input_qst, label):
+        #self.eval()
+        #output_greedy = self(input_img, input_qst)
+        #loss_greedy = F.nll_loss(output_greedy, label)
+      
+        self.train()
+        self.optimizer.zero_grad()
+        output = self(input_img, input_qst)
+        loss = F.nll_loss(output, label)
+        
+        ## loss_adjusted = loss - Variable(loss_greedy, requires_grad=False)
+        #loss_adjusted = 2.0 * loss - 1.0 * loss_greedy
+        loss_adjusted = loss
+        
+        loss_adjusted.backward()
+        self.optimizer.step()
+        
+        pred = output.data.max(1)[1]
+        correct = pred.eq(label.data).cpu().sum()
+        accuracy = correct * 100. / len(label)
+        return accuracy
+        
+    def train_(self, input_img, input_qst, label):
+        #return self.train_regular(input_img, input_qst, label)
+        return self.train_SCST(input_img, input_qst, label)
         
     def test_(self, input_img, input_qst, label):
         self.eval()

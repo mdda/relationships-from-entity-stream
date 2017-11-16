@@ -391,13 +391,15 @@ class RFSH(BasicModel):
           if self.training:
             gumbel = sample_gumbel( ent_logits )
             adjusted_actions += gumbel * 1.0
+            #adjusted_actions += gumbel * 0.5
+            #adjusted_actions += gumbel * 2.0
           else:
             action_max, action_max_idx = torch.max(adjusted_actions, 1, keepdim=True)
             adjusted_actions[:,:] = 0.
             adjusted_actions.scatter_(1, action_max_idx, 5.0)  # This is just 1 at the argmax (no need for differentiability
 
           if True:  # 'plain'          
-            action_weights = adjusted_actions
+            action_weights = adjusted_actions  #*2.0
 
 
 
