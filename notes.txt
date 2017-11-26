@@ -264,10 +264,9 @@ https://nips.cc/Conferences/2017/Schedule?type=Workshop
 
   Visually-Grounded Interaction and Language (ViGIL) # Confirmed that there's no need to 'blind' the submission on/by 17-Nov
     https://nips2017vigil.github.io/
-    Accepted!  TODO: 
+    2017-11-26 : Accepted!  
+    TODO: 
       Build poster-sized version
       Make this repo 'runnable' to enable replication of results
       Explore additional domains to run tests on
       Make sort-of-clevr generator more 'robust' (margins between results - to match original RN diagrams)
-      
-      
