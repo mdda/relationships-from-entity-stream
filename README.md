@@ -114,8 +114,8 @@ this model is used for Sort-of-CLEVR task.
 | Relational question | 89% | 66% |
 !-->
 
-|     | Non-relational questions | Relational questions |
-| | --- | --- | --- |
+|                | Non-relational questions | Relational questions |
+| ---                                 | --- | --- |
 | Relational Networks (50th epoch)    | 99% | 94% |
 | CNN + MLP (without RN, 100th epoch) | | |
 | Rels from Ent Stream (RFS) 'soft'   | | |
