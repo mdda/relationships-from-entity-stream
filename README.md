@@ -4,18 +4,18 @@ Research idea, extending the work in the DeepMind "Relation Networks" paper : [A
 
 ### Abstract
 
-    Relational reasoning is a central component of intelligent behavior, 
-    but has proven difficult for neural networks to learn.  The Relation Network (RN) 
-    module was recently proposed by DeepMind to solve such problems, 
-    and demonstrated state-of-the-art results on a number of datasets.  However, 
-    the RN module scales quadratically in the size of the input, 
-    since it calculates relationship factors between every patch in the visual field, 
-    including those that do not correspond to entities.  In this paper, 
-    we describe an architecture that enables relationships to be determined 
-    from a stream of entities obtained by an attention mechanism over the input field.  The model 
-    is trained end-to-end, and demonstrates 
-    equivalent performance with greater interpretability 
-    while requiring only a fraction of the model parameters of the original RN module.  
+>    Relational reasoning is a central component of intelligent behavior, 
+>    but has proven difficult for neural networks to learn.  The Relation Network (RN) 
+>    module was recently proposed by DeepMind to solve such problems, 
+>    and demonstrated state-of-the-art results on a number of datasets.  However, 
+>    the RN module scales quadratically in the size of the input, 
+>    since it calculates relationship factors between every patch in the visual field, 
+>    including those that do not correspond to entities.  In this paper, 
+>    we describe an architecture that enables relationships to be determined 
+>    from a stream of entities obtained by an attention mechanism over the input field.  The model 
+>    is trained end-to-end, and demonstrates 
+>    equivalent performance with greater interpretability 
+>    while requiring only a fraction of the model parameters of the original RN module.  
 
 
 ## Code Credits
@@ -23,8 +23,8 @@ Research idea, extending the work in the DeepMind "Relation Networks" paper : [A
 The basic implementation here was derived from [kimhc6028/relational-networks](/kimhc6028/relational-networks), which 
 credits [@gngdb](https://github.com/gngdb) for speeding up the model by 10 times.
 
-The implementation of the Relationship from Entity Stream ideas is novel here, and
-the Sort-of-CLEVR generator has been cleaned up (and extended, though that code wasn't used in the results submitted).
+The implementation of the "Relationship from Entity Stream" is the bulk of the new code here, and
+the Sort-of-CLEVR generator has also been cleaned up (and extended, though that code wasn't used in the results submitted).
 
 
 ## Sort-of-CLEVR
@@ -51,7 +51,7 @@ Questions are encoded into a vector of size of 11 : 6 for one-hot vector for cer
 
 <img src="./data/sample.png" width="256">
 
-I.e., with the sample image shown, we can generate non-relational questions like:
+i.e. : With the sample image shown, we can generate non-relational questions like:
 
 1) What is the shape of the red object? => Circle (even though it does not really look like "circle"...)
 2) Is green object placed on the left side of the image? => yes
@@ -76,7 +76,7 @@ And relational questions:
 
 # Under Construction ...
 
-THE FOLLOWING SECTION ARE CURRENTLY UNDER CONSTRUCTION, since the aim is to make the results of the NIPS ViGIL Workshop paper fully 
+THE FOLLOWING SECTION ARE CURRENTLY **UNDER CONSTRUCTION**, since the aim is to make the results of the NIPS ViGIL Workshop paper fully 
 reproducible in a turn-key fashion.  The code in the repo on the submission date produced the RN, RFS and RFSH results 
 cleanly - and I'm still trying to find the run that produced the (not particularly relevant) CNN scores.  Plus
 also tidy up the code and instructions before the Workshop itself.
@@ -105,14 +105,23 @@ In the original paper, Sort-of-CLEVR task used different model from CLEVR task. 
 because model used CLEVR requires much less time to compute (network is much smaller), 
 this model is used for Sort-of-CLEVR task.
 
-## Result
+## Results
 
+<!--
 | | Relational Networks (20th epoch) | CNN + MLP (without RN, 100th epoch) |
 | --- | --- | --- |
 | Non-relational question | 99% | 66% |
 | Relational question | 89% | 66% |
+!-->
 
-CNN + MLP occured overfitting to the training data.
+|     | Non-relational questions | Relational questions |
+| | --- | --- | --- |
+| Relational Networks (50th epoch)    | 99% | 94% |
+| CNN + MLP (without RN, 100th epoch) | | |
+| Rels from Ent Stream (RFS) 'soft'   | | |
+| Rels from Ent Stream (RFS) 'hard'   | | |
+
+CNN + MLP occured overfitting to the training data (result may also be seed dependent)
 
 Relational networks shows far better results in relational questions and non-relation questions. 
 
