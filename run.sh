@@ -22,7 +22,7 @@
 #  43secs per epoch on 760 GTX
 
 
-#python -u main.py --model=RFS     --epochs=20  | tee --append model/training_RFS.log
+#python -u main.py --model=RFES     --epochs=20  | tee --append model/training_RFES.log
 # No softmax on output (Do'h)
 # Epoch   0 (end) :   Test set: Relation accuracy: 35% | Non-relation accuracy: 17%
 # Epoch  10 (end) :   Test set: Relation accuracy:  0% | Non-relation accuracy: 34%
@@ -44,7 +44,7 @@
 #  76secs per epoch on Titax X (Maxwell)
 
 
-# Additional rnn layer to create stream queries :  model/training_RFS-02-2rnn-layers-in-stream.log
+# Additional rnn layer to create stream queries :  model/training_RFES-02-2rnn-layers-in-stream.log
 #  Test set after epoch  1 : Relation accuracy: 33% | Non-relation accuracy: 16%
 #  Test set after epoch  2 : Relation accuracy: 34% | Non-relation accuracy: 17%
 #  Test set after epoch  5 : Relation accuracy: 43% | Non-relation accuracy: 51%
@@ -56,37 +56,37 @@
 #  Test set after epoch 19 : Relation accuracy: 49% | Non-relation accuracy: 56%
 #  Test set after epoch 20 : Relation accuracy: 50% | Non-relation accuracy: 56%
 
-# More :: python -u main.py --model=RFS     --epochs=20 --resume epoch_RFS_20.pth | tee --append model/training_RFS-02-2rnn-layers-in-stream.log
+# More :: python -u main.py --model=RFES     --epochs=20 --resume epoch_RFES_20.pth | tee --append model/training_RFES-02-2rnn-layers-in-stream.log
 
 #  Test set after epoch 25 : Relation accuracy: 58% | Non-relation accuracy: 57%
 #  Test set after epoch 30 : Relation accuracy: 63% | Non-relation accuracy: 58%
 #  Test set after epoch 35 : Relation accuracy: 67% | Non-relation accuracy: 58%
 #  Test set after epoch 40 : Relation accuracy: 68% | Non-relation accuracy: 57%
 
-# More :: python -u main.py --model=RFS     --epochs=10 --resume epoch_RFS_20.pth | tee --append model/training_RFS-02-2rnn-layers-in-stream.log
+# More :: python -u main.py --model=RFES     --epochs=10 --resume epoch_RFES_20.pth | tee --append model/training_RFES-02-2rnn-layers-in-stream.log
 
 #  Test set after epoch 45 : Relation accuracy: 70% | Non-relation accuracy: 59%
 #  Test set after epoch 50 : Relation accuracy: 71% | Non-relation accuracy: 58%
 
 
-# python -u main.py --model=RFS --epochs=20  | tee  model/training_RFS-key-is-param.log
+# python -u main.py --model=RFES --epochs=20  | tee  model/training_RFES-key-is-param.log
 
 
 
 # Run with higher learning rates initially:
 
-#python -u main.py --model=RFS --epochs=20 --lr=0.001  | tee model/training_RFS-key-is-param.log
+#python -u main.py --model=RFES --epochs=20 --lr=0.001  | tee model/training_RFES-key-is-param.log
 #  Test set after epoch 20 : Relation accuracy: 41% | Non-relation accuracy: 81%
 
-#python -u main.py --model=RFS --epochs=30 --lr=0.0003 --resume epoch_RFS_20.pth | tee --append  model/training_RFS-key-is-param.log
+#python -u main.py --model=RFES --epochs=30 --lr=0.0003 --resume epoch_RFES_20.pth | tee --append  model/training_RFES-key-is-param.log
 #  Test set after epoch 50 : Relation accuracy: 80% | Non-relation accuracy: 98%
 
-#python -u main.py --model=RFS --epochs=150 --lr=0.0001 --resume epoch_RFS_30.pth | tee --append  model/training_RFS-key-is-param.log
+#python -u main.py --model=RFES --epochs=150 --lr=0.0001 --resume epoch_RFES_30.pth | tee --append  model/training_RFES-key-is-param.log
 # 220mins expected: ~<4hr
 
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --resume 0 --template model/{}_2item-span_{:03d}.pth | tee --append logs/RFS_2item-span.log
-(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span.log 
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --resume 0 --template model/{}_2item-span_{:03d}.pth | tee --append logs/RFES_2item-span.log
+(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_2item-span.log 
 #  Test set after epoch  1 : Relation accuracy: 54% | Non-relation accuracy: 57%
 #  Test set after epoch  2 : Relation accuracy: 73% | Non-relation accuracy: 60%
 #  Test set after epoch  5 : Relation accuracy: 73% | Non-relation accuracy: 63%
@@ -96,9 +96,9 @@
 #  Test set after epoch 40 : Relation accuracy: 94% | Non-relation accuracy: 99%
 #  Test set after epoch 50 : Relation accuracy: 92% | Non-relation accuracy: 99%
 
-python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span_{:03d}.pth | tee --append logs/RFS_1item-span.log
+python -u main.py --model=RFES --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span_{:03d}.pth | tee --append logs/RFES_1item-span.log
 # This should do well on the nonrel, but fail on the rel .. Hmmm : Not so much as expected...
-# grep Test logs/RFS_1item-span.log 
+# grep Test logs/RFES_1item-span.log 
 #  Test set after epoch  1 : Relation accuracy: 45% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 44% | Non-relation accuracy: 56%
 #  Test set after epoch  5 : Relation accuracy: 52% | Non-relation accuracy: 75%
@@ -107,9 +107,9 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 30 : Relation accuracy: 78% | Non-relation accuracy: 78%
 
 
-#python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span-gumbel_{:03d}.pth | tee --append logs/RFS_1item-span-gumbel.log
+#python -u main.py --model=RFES --epochs=30 --lr=0.001 --resume 0 --template model/{}_1item-span-gumbel_{:03d}.pth | tee --append logs/RFES_1item-span-gumbel.log
 # Just see what Gumbel does in the place of softmax
-# (env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_1item-span-gumbel.log 
+# (env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_1item-span-gumbel.log 
 #  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 52%
 #  Test set after epoch  2 : Relation accuracy: 58% | Non-relation accuracy: 54%
 #  Test set after epoch  5 : Relation accuracy: 67% | Non-relation accuracy: 58%
@@ -117,7 +117,7 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 20 : Relation accuracy: 71% | Non-relation accuracy: 60%
 #  Test set after epoch 30 : Relation accuracy: 70% | Non-relation accuracy: 59%
 
-(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-gumbel.log 
+(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_2item-span-gumbel.log 
 #  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 55% | Non-relation accuracy: 56%
 #  Test set after epoch  5 : Relation accuracy: 70% | Non-relation accuracy: 58%
@@ -134,9 +134,9 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 30 : Relation accuracy: 59% | Non-relation accuracy: 56%
 
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-seed10.log
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-seed10_{:03d}.pth | tee --append logs/RFES_2item-span-seed10.log
 # hidden_size=32 (as before)
-#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-seed10.log   # WORKS (better) with different seed
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_2item-span-seed10.log   # WORKS (better) with different seed
 #  Test set after epoch  1 : Relation accuracy: 48% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 55% | Non-relation accuracy: 58%
 #  Test set after epoch  5 : Relation accuracy: 73% | Non-relation accuracy: 86%
@@ -146,9 +146,9 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 40 : Relation accuracy: 93% | Non-relation accuracy: 100%
 #  Test set after epoch 50 : Relation accuracy: 93% | Non-relation accuracy: 100%
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=64 --resume 0 --seed 10 --template model/{}_2item-span-hidden64-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-hidden64-seed10.log
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=64 --resume 0 --seed 10 --template model/{}_2item-span-hidden64-seed10_{:03d}.pth | tee --append logs/RFES_2item-span-hidden64-seed10.log
 # hidden_size=64
-#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-hidden64-seed10.log 
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_2item-span-hidden64-seed10.log 
 #  Test set after epoch  1 : Relation accuracy: 45% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 43% | Non-relation accuracy: 52%
 #  Test set after epoch  5 : Relation accuracy: 67% | Non-relation accuracy: 60%
@@ -159,9 +159,9 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 50 : Relation accuracy: 90% | Non-relation accuracy: 99%    !!
 
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --process_coords --seed 10 --template model/{}_2item-span-process_coords-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-process_coords.log
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --process_coords --seed 10 --template model/{}_2item-span-process_coords-seed10_{:03d}.pth | tee --append logs/RFES_2item-span-process_coords.log
 # hidden_size=32.  But add coords to CNN output and do 2 further layers of 1x1 covolutions
-#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-process_coords.log
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_2item-span-process_coords.log
 #  Test set after epoch  1 : Relation accuracy: 49% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 70% | Non-relation accuracy: 56%
 #  Test set after epoch  5 : Relation accuracy: 72% | Non-relation accuracy: 63%
@@ -177,8 +177,8 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  Test set after epoch 50 : Relation accuracy: 95% | Non-relation accuracy: 99%
 
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-again-seed10_{:03d}.pth | tee --append logs/RFS_2item-span-again.log
-#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-again.log
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --template model/{}_2item-span-again-seed10_{:03d}.pth | tee --append logs/RFES_2item-span-again.log
+#(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFES_2item-span-again.log
 #  Test set after epoch  1 : Relation accuracy: 43% | Non-relation accuracy: 51%
 #  Test set after epoch  2 : Relation accuracy: 43% | Non-relation accuracy: 52%
 #  Test set after epoch  3 : Relation accuracy: 44% | Non-relation accuracy: 52%
@@ -209,28 +209,28 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
 #  996  cp /mnt/data/Personal/logs.tmp/CNNMLP_tricky_050.pth model/
 #  999  cp /mnt/data/Personal/logs.tmp/training_CNN_dataset++_tricky.log  logs/
 
-# python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_2item-span-tricky.log
-# python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 40 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_2item-span-tricky.log
+# python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFES_2item-span-tricky.log
+# python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 40 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFES_2item-span-tricky.log
 
-# python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --seq_len 3 --template model/{}_3item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFS_3item-span-tricky.log
-#  997  cp /mnt/data/Personal/logs.tmp/RFS_3item-span-seed10-tricky_050.pth model/
-#  998  cp /mnt/data/Personal/logs.tmp/RFS_3item-span-tricky.log  logs/
+# python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --seq_len 3 --template model/{}_3item-span-seed10-tricky_{:03d}.pth | tee --append logs/RFES_3item-span-tricky.log
+#  997  cp /mnt/data/Personal/logs.tmp/RFES_3item-span-seed10-tricky_050.pth model/
+#  998  cp /mnt/data/Personal/logs.tmp/RFES_3item-span-tricky.log  logs/
 
 
 
 # python -u main.py --model=RN --epochs=50 --template model/{}_tricky2_{:03d}.pth --train_tricky | tee --append logs/training_RN_dataset++_tricky2.log   
   
-# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-tricky2.log
-# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 1 --train_tricky --template model/{}_2item-span-seed1-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-seed1-tricky2.log
+# python -u main.py --model=RFES --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-tricky2_{:03d}.pth | tee --append logs/RFES_2item-span-tricky2.log
+# python -u main.py --model=RFES --epochs=100 --lr=0.001 --rnn_hidden_size=32 --resume 0 --seed 1 --train_tricky --template model/{}_2item-span-seed1-tricky2_{:03d}.pth | tee --append logs/RFES_2item-span-seed1-tricky2.log
 ## Peformance on norel and birel pretty much the same.  trirel a little worse (50s vs 60) - but should be winning...
 
 
-# python -u main.py --model=RFS --epochs=100 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6  --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-tricky2.log
-# python -u main.py --model=RFS --epochs=50 --lr=0.0003 --rnn_hidden_size=32 --coord_extra_len=6 --resume 50 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-tricky2.log
+# python -u main.py --model=RFES --epochs=100 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6  --resume 0 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFES_2item-span-6coord-tricky2.log
+# python -u main.py --model=RFES --epochs=50 --lr=0.0003 --rnn_hidden_size=32 --coord_extra_len=6 --resume 50 --seed 10 --train_tricky --template model/{}_2item-span-seed10-6coord-tricky2_{:03d}.pth | tee --append logs/RFES_2item-span-6coord-tricky2.log
 
 # python -u main.py --model=RN  --epochs=50 --seed 10 --template model/{}_{:03d}.pth | tee --append logs/training_RN_seed10.log   
 
-(env3) [andrewsm@simlim relationships-from-entity-stream]$ grep Test logs/RFS_2item-span-6coord.log 
+(env3) [andrewsm@simlim relationships-from-entity-stream]$ grep Test logs/RFES_2item-span-6coord.log 
   Test set after epoch  1 : Non-relation accuracy: 54% | Relation accuracy: 48% | Tricky accuracy: 0% 
   Test set after epoch  2 : Non-relation accuracy: 63% | Relation accuracy: 71% | Tricky accuracy: 0% 
   Test set after epoch  3 : Non-relation accuracy: 64% | Relation accuracy: 72% | Tricky accuracy: 0% 
@@ -283,8 +283,8 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
   Test set after epoch 50 : Non-relation accuracy: 99% | Relation accuracy: 94% | Tricky accuracy: 0% 
 
 
-# python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord_{:03d}.pth | tee --append logs/RFS_2item-span-6coord.log
-# grep Test logs/RFS_2item-span-6coord.log 
+# python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord_{:03d}.pth | tee --append logs/RFES_2item-span-6coord.log
+# grep Test logs/RFES_2item-span-6coord.log 
 
 # For comparison (back to non-tricky stuff to see whether 99/95 beats it)
 # python -u main.py --model=RN  --epochs=50 --seed 10 --template model/{}_{:03d}.pth | tee --append logs/training_RN_seed10.log 
@@ -341,25 +341,25 @@ python -u main.py --model=RFS --epochs=30 --lr=0.001 --resume 0 --template model
   Test set after epoch 50 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
 
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-relu_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-relu.log
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-relu_{:03d}.pth | tee --append logs/RFES_2item-span-6coord-relu.log
 # Seems to work slightly better
 
-#python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --template model/{}_2item-span-seed10-6coord-highway1_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-highway1.log
+#python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --template model/{}_2item-span-seed10-6coord-highway1_{:03d}.pth | tee --append logs/RFES_2item-span-6coord-highway1.log
 # Works, but not clear that much is gained by adding highway network
 
-python -u main.py --model=RFS --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --train_tricky --template model/{}_2item-span-seed10-6coord-highway1-tricky2_{:03d}.pth | tee --append logs/RFS_2item-span-6coord-highway1-tricky2.log
+python -u main.py --model=RFES --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --highway 1 --train_tricky --template model/{}_2item-span-seed10-6coord-highway1-tricky2_{:03d}.pth | tee --append logs/RFES_2item-span-6coord-highway1-tricky2.log
 # Again, seems to get stuck like when ReLU was before the highway unit : Perhaps it's a seed (i.e. robustness) problem.  :: NOT CONVINCING
 
 
-python -u main.py --model=RFSH --epochs=1 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-fuzz1.0_{:03d}.pth | tee --append logs/RFSH_2item-span-6coord-fuzz1.0.log
+python -u main.py --model=RFESH --epochs=1 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-fuzz1.0_{:03d}.pth | tee --append logs/RFESH_2item-span-6coord-fuzz1.0.log
 
-python -u main.py --model=RFSH --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-fuzz1.0-emph2.0_{:03d}.pth | tee --append logs/RFSH_2item-span-6coord-fuzz1.0-emph2.0.log
+python -u main.py --model=RFESH --epochs=50 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_2item-span-seed10-6coord-fuzz1.0-emph2.0_{:03d}.pth | tee --append logs/RFESH_2item-span-6coord-fuzz1.0-emph2.0.log
 
-python -u main.py --model=RFSH --epochs=50 --lr=0.001 --seq_len=4 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_4item-span-seed10-6coord-fuzz1.0-emph5.0_{:03d}.pth | tee --append logs/RFSH_4item-span-6coord-fuzz1.0-emph5.0.log
+python -u main.py --model=RFESH --epochs=50 --lr=0.001 --seq_len=4 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_4item-span-seed10-6coord-fuzz1.0-emph5.0_{:03d}.pth | tee --append logs/RFESH_4item-span-6coord-fuzz1.0-emph5.0.log
 
 
-python -u main.py --model=RFSH --epochs=150 --lr=0.001 --seq_len=6 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_6item-span-seed10-6coord-fuzz1.0-plain-hardtest_{:03d}.pth | tee --append logs/RFSH_6item-span-6coord-fuzz1.0-plain-hardtest.log
-(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFSH_6item-span-6coord-fuzz1.0-plain-hardtest.log
+python -u main.py --model=RFESH --epochs=150 --lr=0.001 --seq_len=6 --rnn_hidden_size=32 --coord_extra_len=6 --resume 0 --seed 10 --template model/{}_6item-span-seed10-6coord-fuzz1.0-plain-hardtest_{:03d}.pth | tee --append logs/RFESH_6item-span-6coord-fuzz1.0-plain-hardtest.log
+(env3) [andrewsm@square relationships-from-entity-stream]$ grep Test logs/RFESH_6item-span-6coord-fuzz1.0-plain-hardtest.log
   Test set after epoch  1 : Non-relation accuracy: 51% | Relation accuracy: 41% | Tricky accuracy: 0% 
   Test set after epoch  2 : Non-relation accuracy: 51% | Relation accuracy: 48% | Tricky accuracy: 0% 
   Test set after epoch  3 : Non-relation accuracy: 54% | Relation accuracy: 58% | Tricky accuracy: 0% 
@@ -511,8 +511,8 @@ python -u main.py --model=RFSH --epochs=150 --lr=0.001 --seq_len=6 --rnn_hidden_
   Test set after epoch 149 : Non-relation accuracy: 98% | Relation accuracy: 81% | Tricky accuracy: 0% 
   Test set after epoch 150 : Non-relation accuracy: 99% | Relation accuracy: 79% | Tricky accuracy: 0% 
 
-python -u main.py --model=RFSH --epochs=500 --lr=0.001 --seq_len=6 --rnn_hidden_size=64 --coord_extra_len=6 --resume 0 --seed 11 --template model/{}_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest_{:03d}.pth | tee --append logs/RFSH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest.log
-grep Test logs/RFSH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest.log
+python -u main.py --model=RFESH --epochs=500 --lr=0.001 --seq_len=6 --rnn_hidden_size=64 --coord_extra_len=6 --resume 0 --seed 11 --template model/{}_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest_{:03d}.pth | tee --append logs/RFESH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest.log
+grep Test logs/RFESH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest.log
 
   Test set after epoch  1 : Non-relation accuracy: 54% | Relation accuracy: 50% | Tricky accuracy: 0% 
   Test set after epoch  2 : Non-relation accuracy: 53% | Relation accuracy: 51% | Tricky accuracy: 0% 
@@ -1066,7 +1066,7 @@ grep Test logs/RFSH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest.log
   Test set after epoch 550 : Non-relation accuracy: 99% | Relation accuracy: 93% | Tricky accuracy: 0% 
 
 
-python -u main.py --model=RFSH --epochs=500 --lr=0.001 --seq_len=6 --rnn_hidden_size=64 --coord_extra_len=6 --resume 0 --seed 11 --train_tricky --template model/{}_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest-tricky_{:03d}.pth | tee --append logs/RFSH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest-tricky.log
+python -u main.py --model=RFESH --epochs=500 --lr=0.001 --seq_len=6 --rnn_hidden_size=64 --coord_extra_len=6 --resume 0 --seed 11 --train_tricky --template model/{}_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest-tricky_{:03d}.pth | tee --append logs/RFESH_6item-span-seed11-hidden64-6coord-fuzz1.0-plain-hardtest-tricky.log
 
 
 python -u main.py --model=CNN_MLP --epochs=100 | tee --append model/training_CNN_MLP.log

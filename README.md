@@ -119,8 +119,8 @@ this model is used for Sort-of-CLEVR task.
 | Relational Networks (50th epoch)    |    99% |    94% |
 | *CNN + MLP (per RN paper, 100th epoch)* |    *98%* |    *62%* |
 | CNN + MLP (as here, 100th epoch)    |    67% |    67% |
-| Rels from Ent Stream 'soft' (RFS)   |    99% |    95% |
-| Rels from Ent Stream 'hard' (RFSH)  |    99% |    93% |
+| Rels from Ent Stream 'soft' (RFES)   |    99% |    95% |
+| Rels from Ent Stream 'hard' (RFES.H)  |    99% |    93% |
 
 CNN + MLP occured overfitting to the training data (result may also be seed dependent)
 

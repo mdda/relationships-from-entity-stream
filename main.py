@@ -81,13 +81,13 @@ torch.manual_seed(args.seed)
 torch.cuda.manual_seed_all(args.seed)  # Safe even if no GPU
 
 
-from model import RN, CNN_MLP, RFS
-from model_hard import RFSH
+from model import RN, CNN_MLP
+from model_vigil import RFES, RFESH
 
-if args.model=='RFS': 
-  model = RFS(args)
-elif args.model=='RFSH': 
-  model = RFSH(args)
+if args.model=='RFES': 
+  model = RFES(args)
+elif args.model=='RFESH': 
+  model = RFESH(args)
 elif args.model=='CNN_MLP': 
   model = CNN_MLP(args)
 else:
