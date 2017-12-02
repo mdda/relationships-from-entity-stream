@@ -63,6 +63,18 @@ And relational questions:
 2) What is the shape of the object furthest to the orange object? => circle
 3) How many objects have same shape with the blue object? => 3
 
+There is an additional 'tricky' set of questions included in the code, 
+which were not part of the original Sort-of-CLEVR setup : 
+
+1) How many things are colinear with 2 chosen colours?
+2) How many things are eqidistant from 2 chosen colours?
+3) How many things are on clockwise side of line joining 2 chosen colours?
+
+
+These are also testable using the included models with a ```--tricky``` parameter added.  However, 
+they didn't seem to draw out any wothwhile differences between the models, so the workshop paper
+didn't report these extended numbers.
+
 
 ## Requirements
 
