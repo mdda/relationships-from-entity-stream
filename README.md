@@ -17,6 +17,12 @@ Research idea, extending the work in the DeepMind "Relation Networks" paper : [A
 >    equivalent performance with greater interpretability 
 >    while requiring only a fraction of the model parameters of the original RN module.  
 
+The aim of this repo is to make the results of the NIPS ViGIL Workshop paper fully 
+reproducible in a turn-key fashion.  The code in the repo on the submission date 
+produced the RN, RFS and RFSH results cleanly - and I'm still trying to find the 
+run that produced the (not particularly relevant) CNN scores.  Plus
+also tidy up the code and instructions before the Workshop itself.
+
 
 ## Code Credits
 
@@ -81,43 +87,55 @@ didn't report these extended numbers.
 - Python 2.7
 - [numpy](http://www.numpy.org/)
 - [pytorch](http://pytorch.org/)
-- [opencv](http://opencv.org/)
+- [opencv](http://opencv.org/)  # For sort-of-clevr-generator
 
 
-----------
-
-# Under Construction ...
-
-THE FOLLOWING SECTION ARE CURRENTLY **UNDER CONSTRUCTION**, since the aim is to make the results of the NIPS ViGIL Workshop paper fully 
-reproducible in a turn-key fashion.  The code in the repo on the submission date produced the RN, RFS and RFSH results 
-cleanly - and I'm still trying to find the run that produced the (not particularly relevant) CNN scores.  Plus
-also tidy up the code and instructions before the Workshop itself.
-
-----------
 
 ## Usage 
 
+Create the sort-of-clevr dataset : 
 
-	$ ./run.sh
+{% highlight bash %}
+python sort_of_clevr_generator.py
+{% endhighlight %}
 
-or
+There seems to be an issue with (exact) reproducability in PyTorch, even though the ```--seed``` values
+are set in ```random.```, ```numpy.``` and ```torch.``` contexts.  If there is something
+else that needs to be done, please file an issue.
 
-  	$ python sort_of_clevr_generator.py
+Train (and test) each of the models in turn : 
 
-to generate sort-of-clevr dataset
-and
+{% highlight bash %}
+python -u main.py --model=RN --epochs=50 --seed 10 --template model/{}_{:03d}.pth \
+  | tee --append logs/training_RN_seed10.log 
+grep Test logs/training_RN_seed10.log    # To plot out the Test performance curve
+{% endhighlight %}
 
- 	 $ python main.py 
+{% highlight bash %}
+python -u main.py --model=CNN_MLP --epochs=100 --seed 10 --template model/{}_{:03d}.pth \
+  | tee --append logs/training_CNN_MLP.log
+{% endhighlight %}
 
-to train.
+{% highlight bash %}
+python -u main.py --model=RFES --epochs=100 --lr=0.001 --seed 10 \
+   --rnn_hidden_size=32 --coord_extra_len=6 --seq_len=6 \
+   --template model/{}_6item-span-seed10-6coord-relu_{:03d}.pth \
+   | tee --append logs/RFES_6item-span-6coord-relu.log
+{% endhighlight %}
 
-## Modifications
+{% highlight bash %}
+python -u main.py --model=RFESH --epochs=400 --lr=0.001 --seed 10 \
+   --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
+   --template model/{}_6item-span-seed10-6coord-relu_{:03d}.pth \
+   | tee --append logs/RFES_6item-span-6coord-relu.log
+{% endhighlight %}
 
-In the original paper, Sort-of-CLEVR task used different model from CLEVR task. However, 
-because model used CLEVR requires much less time to compute (network is much smaller), 
-this model is used for Sort-of-CLEVR task.
 
 ## Results
+
+The results for all the RN/RFES/RFESH in the NIPS 2017 ViGIL workshop paper 
+should be reproducible from the code in this repo : If you have difficulty, 
+please let the author know.  Clearly, there is some code-cleanup required...
 
 <!--
 | | Relational Networks (20th epoch) | CNN + MLP (without RN, 100th epoch) |
@@ -134,7 +152,10 @@ this model is used for Sort-of-CLEVR task.
 | Rels from Ent Stream 'soft' (RFES)   |    99% |    95% |
 | Rels from Ent Stream 'hard' (RFES.H)  |    99% |    93% |
 
-CNN + MLP occured overfitting to the training data (result may also be seed dependent)
 
-Relational networks shows far better results in relational questions and non-relation questions. 
+(*) the first CNN+MLP result set is as shown in the original Relation Network paper, and isn't reproduced
+by this code (most likely because the CNN_MLP layers are much smaller).  The second CNN_MLP
+version is what is reproduced here (along with all the other results) - and little effort was 
+put into reproducing the CNN numbers, since the focus was mainly on achieving results competitive
+(or better) than the Relation Networks paper, while having a more satisfying internal structure.
 
