@@ -95,9 +95,9 @@ didn't report these extended numbers.
 
 Create the sort-of-clevr dataset : 
 
-{% highlight bash %}
+```
 python sort_of_clevr_generator.py
-{% endhighlight %}
+```
 
 There seems to be an issue with (exact) reproducability in PyTorch, even though the ```--seed``` values
 are set in ```random.```, ```numpy.``` and ```torch.``` contexts.  If there is something
@@ -105,30 +105,30 @@ else that needs to be done, please file an issue.
 
 Train (and test) each of the models in turn : 
 
-{% highlight bash %}
+```
 python -u main.py --model=RN --epochs=50 --seed 10 --template model/{}_{:03d}.pth \
   | tee --append logs/training_RN_seed10.log 
 grep Test logs/training_RN_seed10.log    # To plot out the Test performance curve
-{% endhighlight %}
+```
 
-{% highlight bash %}
+```
 python -u main.py --model=CNN_MLP --epochs=100 --seed 10 --template model/{}_{:03d}.pth \
   | tee --append logs/training_CNN_MLP.log
-{% endhighlight %}
+```
 
-{% highlight bash %}
+```
 python -u main.py --model=RFES --epochs=100 --lr=0.001 --seed 10 \
    --rnn_hidden_size=32 --coord_extra_len=6 --seq_len=6 \
    --template model/{}_6item-span-seed10-6coord-relu_{:03d}.pth \
    | tee --append logs/RFES_6item-span-6coord-relu.log
-{% endhighlight %}
+```
 
-{% highlight bash %}
+```
 python -u main.py --model=RFESH --epochs=400 --lr=0.001 --seed 10 \
    --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
    --template model/{}_6item-span-seed10-6coord-relu_{:03d}.pth \
    | tee --append logs/RFES_6item-span-6coord-relu.log
-{% endhighlight %}
+```
 
 
 ## Results
