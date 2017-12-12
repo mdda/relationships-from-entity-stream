@@ -19,18 +19,8 @@ Research idea, extending the work in the DeepMind "Relation Networks" paper : [A
 
 The aim of this repo is to make the results of the NIPS ViGIL Workshop paper fully 
 reproducible in a turn-key fashion.  The code in the repo on the submission date 
-produced the RN, RFS and RFSH results cleanly - and I'm still trying to find the 
-run that produced the (not particularly relevant) CNN scores.  Plus
-also tidy up the code and instructions before the Workshop itself.
-
-
-## Code Credits
-
-The basic implementation here was derived from [kimhc6028/relational-networks](/kimhc6028/relational-networks), which 
-credits [@gngdb](https://github.com/gngdb) for speeding up the model by 10 times.
-
-The implementation of the "Relationship from Entity Stream" is the bulk of the new code here, and
-the Sort-of-CLEVR generator has also been cleaned up (and extended, though that code wasn't used in the results submitted).
+produced the RN, RFS and RFSH results cleanly - though I'm still trying to find the 
+run that produced the (not particularly relevant) CNN scores.  
 
 
 ## Sort-of-CLEVR
@@ -107,7 +97,8 @@ Train (and test) each of the models in turn :
 
 ```
 python -u main.py --model=RN --epochs=50 --seed 10 --template model/{}_{:03d}.pth \
-  | tee --append logs/training_RN_seed10.log 
+  | tee --append logs/training_RN_seed10.log
+# Each epoch ~86secs on Titan X (Maxwell)
 grep Test logs/training_RN_seed10.log    # To plot out the Test performance curve
 ```
 
@@ -158,4 +149,13 @@ by this code (most likely because the CNN_MLP layers are much smaller).  The sec
 version is what is reproduced here (along with all the other results) - and little effort was 
 put into reproducing the CNN numbers, since the focus was mainly on achieving results competitive
 (or better) than the Relation Networks paper, while having a more satisfying internal structure.
+
+
+### Code Credits
+
+The basic implementation here was derived from [kimhc6028/relational-networks](/kimhc6028/relational-networks), which 
+credits [@gngdb](https://github.com/gngdb) for speeding up the model by 10 times.
+
+The implementation of the "Relationship from Entity Stream" is the bulk of the new code here, and
+the Sort-of-CLEVR generator has also been cleaned up (and extended, though that code wasn't used in the results submitted).
 

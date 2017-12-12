@@ -10,6 +10,8 @@ import argparse
 parser = argparse.ArgumentParser(description='PyTorch Relations-from-Stream sort-of-CLVR dataset builder')
 parser.add_argument('--dir', type=str, default='./data',  
                     help='Directory in which to store the dataset')
+parser.add_argument('--seed', type=int, default=10, metavar='S',
+                    help='random seed (default: 10)')
 parser.add_argument('--add_tricky', action='store_true', default=True,
                     help='Add the tricky cases')
 
@@ -17,6 +19,9 @@ parser.add_argument('-f', type=str, default='',  help='Fake for Jupyter notebook
                  
 args = parser.parse_args()
 dirs = args.dir 
+
+random.seed(args.seed)
+np.random.seed(args.seed)
 
 train_size, test_size = 9800, 200
 
