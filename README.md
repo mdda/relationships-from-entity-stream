@@ -95,6 +95,7 @@ else that needs to be done, please file an issue.
 
 Train (and test) each of the models in turn : 
 
+**Relation Network**
 ```
 python -u main.py --model=RN --epochs=50 --seed 10 --template model/{}_{:03d}.pth \
   | tee --append logs/training_RN_seed10.log
@@ -102,11 +103,14 @@ python -u main.py --model=RN --epochs=50 --seed 10 --template model/{}_{:03d}.pt
 grep Test logs/training_RN_seed10.log    # To plot out the Test performance curve
 ```
 
+**CNN-MLP**
 ```
 python -u main.py --model=CNN_MLP --epochs=100 --seed 10 --template model/{}_{:03d}.pth \
   | tee --append logs/training_CNN_MLP.log
+# Each epoch ~26secs on Titan X (Maxwell) - only gets to NonRel=70%, BiRel=67%
 ```
 
+**Relationships from Entity Stream (soft attention)**
 ```
 python -u main.py --model=RFES --epochs=100 --lr=0.001 --seed 10 \
    --rnn_hidden_size=32 --coord_extra_len=6 --seq_len=6 \
@@ -114,6 +118,7 @@ python -u main.py --model=RFES --epochs=100 --lr=0.001 --seed 10 \
    | tee --append logs/RFES_6item-span-6coord-relu.log
 ```
 
+**Relationships from Entity Stream (hard attention)**
 ```
 python -u main.py --model=RFESH --epochs=400 --lr=0.001 --seed 10 \
    --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \

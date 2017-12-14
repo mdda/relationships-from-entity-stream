@@ -18,7 +18,7 @@ from torch.autograd import Variable
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch Relations-from-Stream sort-of-CLVR Example')
-parser.add_argument('--model', type=str, choices=['RN', 'CNN_MLP', 'RFS', 'RFSH'], default='RN', 
+parser.add_argument('--model', type=str, choices=['RN', 'CNN_MLP', 'RFES', 'RFESH'], default='RFESH', 
                     help='model type')
 parser.add_argument('--batch-size', type=int, default=64, metavar='N',
                     help='input batch size for training (default: 64)')
