@@ -98,7 +98,7 @@ Train (and test) each of the models in turn :
 **Relation Network**
 ```
 python -u main.py --model=RN --epochs=50 --seed 10 --template model/{}_{:03d}.pth \
-  | tee --append logs/training_RN_seed10.log
+  | tee --append logs/training_RN.log
 # Each epoch ~86secs on Titan X (Maxwell)
 grep Test logs/training_RN_seed10.log    # To plot out the Test performance curve
 ```
@@ -106,24 +106,23 @@ grep Test logs/training_RN_seed10.log    # To plot out the Test performance curv
 **CNN-MLP**
 ```
 python -u main.py --model=CNN_MLP --epochs=100 --seed 10 --template model/{}_{:03d}.pth \
-  | tee --append logs/training_CNN_MLP.log
+  | tee --append logs/training_CNN-MLP.log
 # Each epoch ~26secs on Titan X (Maxwell) - only gets to NonRel=70%, BiRel=67%
 ```
 
 **Relationships from Entity Stream (soft attention)**
 ```
-python -u main.py --model=RFES --epochs=100 --lr=0.001 --seed 10 \
-   --rnn_hidden_size=32 --coord_extra_len=6 --seq_len=6 \
-   --template model/{}_6item-span-seed10-6coord-relu_{:03d}.pth \
-   | tee --append logs/RFES_6item-span-6coord-relu.log
+python -u main.py --model=RFES --epochs=100 --seed 10 --template model/{}_{:03d}.pth \
+   --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=2 --seq_len=6 \
+   | tee --append logs/training_RFES.log
+# Each epoch ~51secs on Titan X (Maxwell)
 ```
 
 **Relationships from Entity Stream (hard attention)**
 ```
-python -u main.py --model=RFESH --epochs=400 --lr=0.001 --seed 10 \
-   --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
-   --template model/{}_6item-span-seed10-6coord-relu_{:03d}.pth \
-   | tee --append logs/RFES_6item-span-6coord-relu.log
+python -u main.py --model=RFESH --epochs=400 --seed 10 --template model/{}_{:03d}.pth \
+   --lr=0.001 --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
+   | tee --append logs/training_RFESH.log
 ```
 
 

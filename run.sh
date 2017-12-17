@@ -1073,7 +1073,11 @@ python -u main.py --model=CNN_MLP --epochs=100 | tee --append model/training_CNN
 mv model/training_CNN_MLP.log logs/CNN_MLP_base.log
 
 
-python -u main.py --model=RN      --epochs=50  --seed 10 --template model/{}_{:03d}-tmp.pth | tee --append logs/training_RN_seed10-tmp.log
-python -u main.py --model=CNN_MLP --epochs=100 --seed 10 --template model/{}_{:03d}-tmp.pth | tee --append logs/training_CNN_MLP-tmp.log
-python -u main.py --model=RFES    --epochs=100 --seed 10 --template model/{}_{:03d}-tmp.pth --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --seq_len=6 | tee --append logs/training_RFES-tmp.log
+python -u main.py --model=RN      --epochs=50  --seed 10  | tee --append logs/training_RN_seed10-tmp.log
+python -u main.py --model=CNN_MLP --epochs=100 --seed 10  | tee --append logs/training_CNN_MLP-tmp.log
+#python -u main.py --model=RFES    --epochs=100 --seed 10 --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=6 --seq_len=6 | tee --append logs/training_RFES-tmp.log
+python -u main.py --model=RFES    --epochs=100 --seed 10  --lr=0.001 --rnn_hidden_size=32 --coord_extra_len=2 --seq_len=6 | tee --append logs/training_RFES-tmp.log
+
+python -u main.py --model=RFESH   --epochs=400 --seed 10 --template model/{}_{:03d}-tmp.pth --lr=0.001 --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
+   | tee --append logs/training_RFESH-tmp.log
 

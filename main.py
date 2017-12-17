@@ -34,7 +34,7 @@ parser.add_argument('--log-interval', type=int, default=100, metavar='N',
                     help='how many batches to wait before logging training status')
 parser.add_argument('--resume', type=int, default=0,
                     help='resume from model epoch stored')
-parser.add_argument('--template', type=str, default='{}_2item-span_{:03d}.pth',  # default='%%s-%%03d.pkl',  
+parser.add_argument('--template', type=str, default='model/{}_{:03d}.pth',  # default='%%s-%%03d.pkl',  
                     help='template for model name, expecting model type and integer epoch')
 
 parser.add_argument('--rnn_hidden_size', type=int, default=32, 
