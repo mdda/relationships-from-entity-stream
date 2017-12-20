@@ -1081,6 +1081,6 @@ python -u main.py --model=RFES    --epochs=100 --seed 10  --lr=0.001 --rnn_hidde
 #python -u main.py --model=RFESH   --epochs=400 --seed 10 --template model/{}_{:03d}-tmp.pth --lr=0.001 --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
 #   | tee --append logs/training_RFESH-tmp.log
 
-#  Seems stuck at 60%
+#  Seems stuck at 60% - and then test only gets to 98/86 (~same as training)
 #python -u main.py --model=RFESH   --epochs=400 --seed 10 --template model/{}_{:03d}-tmp.pth --lr=0.0008 --rnn_hidden_size=64 --coord_extra_len=6 --seq_len=6 \
 #   | tee --append logs/training_RFESH-tmp.log
