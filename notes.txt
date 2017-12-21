@@ -270,3 +270,6 @@ https://nips.cc/Conferences/2017/Schedule?type=Workshop
       Make this repo 'runnable' to enable replication of results
       Explore additional domains to run tests on
       Make sort-of-clevr generator more 'robust' (margins between results - to match original RN diagrams)
+      Look at code in RFESH and check whether there were last minute changes 
+      Validate all runs 
+      
