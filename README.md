@@ -1,6 +1,8 @@
 # relationships-from-entity-stream
 
-Research idea, extending the work in the DeepMind "Relation Networks" paper : [A simple neural network module for relational reasoning](https://arxiv.org/pdf/1706.01427.pdf).
+Research presented at the NIPs 2017 ViGiL Workshop.
+
+This research extended the work in the DeepMind "Relation Networks" paper : [A simple neural network module for relational reasoning](https://arxiv.org/pdf/1706.01427.pdf).
 
 ### Abstract
 
