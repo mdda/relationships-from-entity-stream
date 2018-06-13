@@ -1,6 +1,10 @@
 # relationships-from-entity-stream
 
-Research presented at the NIPs 2017 ViGiL Workshop.
+Research presented at the [NIPS 2017 ViGiL Workshop](https://nips2017vigil.github.io/) : 
+
+*  [Poster presented](http://redcatlabs.com/downloads/research/2017-12-08_NIPS-2017-ViGIL-Poster_v12.pdf)
+*  [Paper submitted](http://redcatlabs.com/downloads/research/2017-12-08_nips2017_ViGIL-workshop_mdda.pdf)
+
 
 This research extended the work in the DeepMind "Relation Networks" paper : [A simple neural network module for relational reasoning](https://arxiv.org/pdf/1706.01427.pdf).
 
