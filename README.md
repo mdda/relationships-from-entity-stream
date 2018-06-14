@@ -3,7 +3,7 @@
 Research presented at the [NIPS 2017 ViGiL Workshop](https://nips2017vigil.github.io/) : 
 
 *  [Poster presented](http://redcatlabs.com/downloads/research/2017-12-08_NIPS-2017-ViGIL-Poster_v12.pdf)
-*  [Paper submitted](http://redcatlabs.com/downloads/research/2017-12-08_nips2017_ViGIL-workshop_mdda.pdf)
+*  [Paper submitted](http://redcatlabs.com/downloads/research/2017-12-08_nips2017_ViGIL-workshop_mdda.pdf) - and [on the ViGiL site](https://github.com/nips2017vigil/nips2017vigil.github.io/raw/master/papers/2017/relationships_from%20entity.pdf)
 
 
 This research extended the work in the DeepMind "Relation Networks" paper : [A simple neural network module for relational reasoning](https://arxiv.org/pdf/1706.01427.pdf).
